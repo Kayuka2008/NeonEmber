@@ -1,0 +1,7 @@
+# Build outputs generated outside the release folder
+obj/
+bin/
+*.pdb
+*.user
+*.suo
+.vs/

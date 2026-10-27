@@ -1,0 +1,2280 @@
+using System;
+using System.Runtime.InteropServices;
+using System.Text;
+namespace NeonEmber {
+[StructLayout(LayoutKind.Sequential)] public struct V { public float X,Y; public V(float x,float y){X=x;Y=y;} }
+[StructLayout(LayoutKind.Sequential)] public struct Rect { public float X,Y,W,H; public Rect(float x,float y,float w,float h){X=x;Y=y;W=w;H=h;} }
+[StructLayout(LayoutKind.Sequential)] public struct Col { public byte R,G,B,A; public Col(int r,int g,int b,int a){R=(byte)r;G=(byte)g;B=(byte)b;A=(byte)a;} public Col Alpha(float a){return new Col(R,G,B,(int)(Math.Max(0,Math.Min(1,a))*255));} }
+[StructLayout(LayoutKind.Sequential)] public struct Texture { public uint Id; public int W,H,Mipmaps,Format; }
+[StructLayout(LayoutKind.Sequential)] public struct Target { public uint Id; public Texture Texture,Depth; }
+[StructLayout(LayoutKind.Sequential)] public struct Camera2D { public V Offset,Target; public float Rotation,Zoom; }
+[StructLayout(LayoutKind.Sequential)] public struct Font { public int BaseSize,GlyphCount,GlyphPadding; public Texture Texture; public IntPtr Recs,Glyphs; }
+[StructLayout(LayoutKind.Sequential)] public struct Img { public IntPtr Data; public int W,H,Mipmaps,Format; }
+[StructLayout(LayoutKind.Sequential)] public struct Wave { public uint Frames,Rate,Size,Channels; public IntPtr Data; }
+[StructLayout(LayoutKind.Sequential)] public struct AudioStream { public IntPtr Buffer,Processor; public uint Rate,Size,Channels; }
+[StructLayout(LayoutKind.Sequential)] public struct Sound { public AudioStream Stream; public uint Frames; }
+public static class R {
+ const string D="raylib.dll";
+ public static byte[] U(string s){return Encoding.UTF8.GetBytes(s+"\0");}
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern void SetConfigFlags(uint flags);
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern void InitWindow(int w,int h,byte[] title);
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern void CloseWindow();
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] [return:MarshalAs(UnmanagedType.I1)] public static extern bool WindowShouldClose();
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] [return:MarshalAs(UnmanagedType.I1)] public static extern bool IsWindowFocused();
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern void SetExitKey(int k);
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern void SetWindowMinSize(int w,int h);
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern void ToggleBorderlessWindowed();
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern void SetTargetFPS(int fps);
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern int GetFPS();
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern float GetFrameTime();
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern int GetScreenWidth();
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern int GetScreenHeight();
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern int GetRenderWidth();
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern int GetRenderHeight();
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern void SetTraceLogLevel(int level);
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern void BeginDrawing();
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern void EndDrawing();
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern void ClearBackground(Col c);
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern Target LoadRenderTexture(int w,int h);
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern void UnloadRenderTexture(Target t);
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern void BeginTextureMode(Target t);
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern void EndTextureMode();
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern void BeginMode2D(Camera2D camera);
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern void EndMode2D();
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern void DrawTexturePro(Texture t,Rect source,Rect dest,V origin,float rotation,Col tint);
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern void SetTextureFilter(Texture t,int filter);
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern void DrawRectangleRec(Rect r,Col c);
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern void DrawRectangleRounded(Rect r,float roundness,int segments,Col c);
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern void DrawRectangleRoundedLinesEx(Rect r,float roundness,int segments,float thick,Col c);
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern void DrawRectangleLinesEx(Rect r,float thick,Col c);
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern void DrawLineEx(V a,V b,float thick,Col c);
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern void DrawCircleV(V p,float radius,Col c);
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern void DrawCircleLinesV(V p,float radius,Col c);
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern void DrawRing(V p,float inner,float outer,float start,float end,int seg,Col c);
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern void DrawPoly(V p,int sides,float radius,float rotation,Col c);
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern void DrawPolyLinesEx(V p,int sides,float radius,float rotation,float thickness,Col c);
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern Font LoadFontFromMemory(byte[] type,byte[] data,int dataSize,int size,int[] codepoints,int count);
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern Font GetFontDefault();
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern void UnloadFont(Font f);
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern void DrawTextEx(Font f,byte[] text,V pos,float size,float spacing,Col c);
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern V MeasureTextEx(Font f,byte[] text,float size,float spacing);
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern V GetMousePosition();
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] [return:MarshalAs(UnmanagedType.I1)] public static extern bool IsMouseButtonPressed(int k);
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] [return:MarshalAs(UnmanagedType.I1)] public static extern bool IsKeyPressed(int k);
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] [return:MarshalAs(UnmanagedType.I1)] public static extern bool IsKeyDown(int k);
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern void TakeScreenshot(byte[] path);
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern Img LoadImageFromTexture(Texture t);
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern void ImageFlipVertical(ref Img image);
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] [return:MarshalAs(UnmanagedType.I1)] public static extern bool ExportImage(Img image,byte[] path);
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern void UnloadImage(Img image);
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern void InitAudioDevice();
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] [return:MarshalAs(UnmanagedType.I1)] public static extern bool IsAudioDeviceReady();
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern void CloseAudioDevice();
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern Sound LoadSoundFromWave(Wave wave);
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern void PlaySound(Sound sound);
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern void SetSoundVolume(Sound sound,float volume);
+ [DllImport(D,CallingConvention=CallingConvention.Cdecl)] public static extern void UnloadSound(Sound sound);
+}
+}
+
+using System;
+using System.Collections.Generic;
+
+namespace NeonEmber
+{
+    public partial class Enemy
+    {
+        public int Id, AttackPhase;
+        public string Kind = "chaser";
+        public float X, Y, R, Hp, MaxHp, VX, VY, Timer, Windup, TargetX, TargetY;
+        public float Cooldown, Speed, Damage, Life, ContactCooldown;
+    }
+    public class Shot
+    {
+        public float X, Y, VX, VY, R, Damage, Life;
+        public bool Hostile;
+        public string Kind = "bolt";
+        public int Pierce, LastHit;
+        public HashSet<int> HitIds;
+    }
+    public class Orb { public float X, Y, Value, R = 4; }
+    public class Effect
+    {
+        public float X, Y, X2, Y2, R, Life, MaxLife;
+        public string Kind;
+    }
+    public class Upgrade
+    {
+        public string Id, Name, Description, Tag, School, Flavor;
+        public int Price;
+    }
+    public partial class Game
+    {
+        public const int EnemyLimit = 360, ShotLimit = 900, OrbLimit = 280, EffectLimit = 220;
+        public string Mode = "menu", Phase = "蓄势", Announcement = "";
+        public float X = 640, Y = 380, Hp = 100, MaxHp = 100, Time, Xp, NextXp = 18;
+        public int Level = 1, Kills, Coins, Stage = 1, Difficulty, TotalUpgrades, BestCombo, Rerolls = 3;
+        public float DashCooldown, DashTime, Invulnerable, AimX = 1, AimY, AnnouncementTime;
+        public List<Enemy> Enemies = new List<Enemy>();
+        public List<Shot> Shots = new List<Shot>();
+        public List<Orb> Orbs = new List<Orb>();
+        public List<Effect> Effects = new List<Effect>();
+        public List<Upgrade> Choices = new List<Upgrade>(), ShopOffers = new List<Upgrade>();
+        public Dictionary<string, int> Ranks = new Dictionary<string, int>();
+        public List<string> Events = new List<string>();
+        private Random random;
+        public Game(int seed) { random = new Random(seed); }
+
+        private const float Left = 24, Right = 1256, Top = 104, Bottom = 640;
+        private const int GridSize = 64, GridColumns = 21, GridRows = 12;
+        private readonly List<Enemy>[] grid = new List<Enemy>[GridColumns * GridRows];
+        private readonly HashSet<int> chainHits = new HashSet<int>();
+        private float spawnClock, boltClock, arcClock, bladeClock, bladeAngle, dashX = 1, dashY;
+        private float nextShop = 90, nextBoss = 180, phaseClock, idleXpClock;
+        private int nextId, pendingLevels, lastPhase = -1, bossCycle;
+        private bool pendingShop;
+
+        public int Rank(string id) { int value; return Ranks.TryGetValue(id, out value) ? value : 0; }
+        public float BladeAngle { get { return bladeAngle; } }
+        public float PowerMultiplier { get { return 1 + Rank("power") * 0.16f + Rank("overclock") * .08f; } }
+        public float FireRateMultiplier { get { return 1 + Rank("haste") * 0.12f; } }
+        public float PickupRadius { get { return 58 + Rank("magnet") * 24; } }
+
+        public void Start(int weapon, int difficulty)
+        {
+            Mode = "play"; Difficulty = difficulty == 1 ? 1 : 0;
+            X = 640; Y = 380; Hp = MaxHp = 100; Time = Xp = 0; NextXp = 18;
+            Level = Stage = 1; Kills = Coins = TotalUpgrades = BestCombo = 0; Rerolls = 3;
+            DashCooldown = DashTime = Invulnerable = 0; AimX = dashX = 1; AimY = dashY = 0;
+            Enemies.Clear(); Shots.Clear(); Orbs.Clear(); Effects.Clear(); Choices.Clear();
+            ShopOffers.Clear(); Events.Clear(); Ranks.Clear();
+            Ranks[weapon == 1 ? "arc" : weapon == 2 ? "blade" : "bolt"] = 1;
+            spawnClock = 0.6f; boltClock = arcClock = bladeClock = 0;
+            bladeAngle = phaseClock = idleXpClock = 0; nextShop = 90; nextBoss = 180;
+            nextId = pendingLevels = bossCycle = 0; lastPhase = -1; pendingShop = false;
+            ResetTactics(); ResetWorld();
+            Phase = "蓄势"; Say("无尽协议启动 · 保持移动", 4);
+        }
+
+        public void Step(float dt, float mx, float my, bool dash)
+        {
+            if (Mode != "play") return;
+            if (Hp <= 0) { Die(); return; }
+            if (float.IsNaN(dt) || float.IsInfinity(dt) || dt <= 0) return;
+            dt = Math.Min(dt, 0.05f);
+            if (float.IsNaN(mx) || float.IsInfinity(mx)) mx = 0;
+            if (float.IsNaN(my) || float.IsInfinity(my)) my = 0;
+            ResolveXp();
+            if (pendingLevels > 0) { ContinueState(); return; }
+            Time += dt; Stage = 1 + (int)(Time / 90);
+            DashCooldown = Math.Max(0, DashCooldown - dt);
+            Invulnerable = Math.Max(0, Invulnerable - dt);
+            AnnouncementTime = Math.Max(0, AnnouncementTime - dt);
+            float length = (float)Math.Sqrt(mx * mx + my * my);
+            if (length > 1) { mx /= length; my /= length; }
+            if (length > 0.05f) { dashX = mx / Math.Max(0.001f, length > 1 ? 1 : length); dashY = my / Math.Max(0.001f, length > 1 ? 1 : length); }
+            float previousX = X, previousY = Y;
+            bool dashedNow = dash && DashCooldown <= 0;
+            if (dashedNow)
+            {
+                DashTime = 0.20f; DashCooldown = Math.Max(1.5f, 4.4f - Rank("dash") * 0.42f);
+                Invulnerable = Math.Max(Invulnerable, 0.30f); Event("dash");
+                AddEffect("dash", X, Y, X - dashX * 40, Y - dashY * 40, 24, 0.3f);
+            }
+            if (DashTime > 0)
+            {
+                float dashStep = Math.Min(DashTime, dt); DashTime = Math.Max(0, DashTime - dt);
+                X += dashX * 760 * dashStep; Y += dashY * 760 * dashStep;
+            }
+            else { float speed = 220 + Rank("speed") * 16; X += mx * speed * dt; Y += my * speed * dt; }
+            X = Clamp(X, Left + 13, Right - 13); Y = Clamp(Y, Top + 13, Bottom - 13);
+            ObserveMovement(dt, previousX, previousY);
+            UpdateWorld(dt, dashedNow);
+            UpdateDirector(dt);
+            UpdateTactics(dt);
+            UpdateEnemies(dt);
+            UpdateHazards(dt);
+            if (Mode == "over") return;
+            BuildGrid();
+            UpdateWeapons(dt);
+            UpdateShots(dt);
+            if (Mode == "over") return;
+            CollectDead();
+            UpdateOrbs(dt);
+            for (int i = Effects.Count - 1; i >= 0; --i) { Effects[i].Life -= dt; if (Effects[i].Life <= 0) RemoveFast(Effects, i); }
+            // Ambient trickle prevents an unlucky scattered drop field from creating a dead progression period.
+            idleXpClock += dt;
+            if (idleXpClock >= 12) { idleXpClock -= 12; GainXp(2 + Time / 120); }
+            ContinueState();
+        }
+
+        private void UpdateDirector(float dt)
+        {
+            phaseClock = Time % 30;
+            int phase = phaseClock < 18 ? 0 : phaseClock < 25 ? 1 : 2;
+            Phase = phase == 0 ? "游猎" : phase == 1 ? "怪潮" : "喘息";
+            if (phase != lastPhase)
+            {
+                lastPhase = phase;
+                if (phase == 1) { Say("怪潮来袭 · 寻找突破口", 2.8f); Event("wave"); }
+                else if (phase == 2) { Say("短暂喘息 · 回收经验", 2.5f); }
+            }
+            if (Time >= nextShop) { nextShop += 90; pendingShop = true; }
+            if (Time >= nextBoss)
+            {
+                nextBoss += 180; bossCycle++;
+                bool exists = false;
+                for (int i = 0; i < Enemies.Count; i++) if (Enemies[i].Kind == "boss" && Enemies[i].Hp > 0) exists = true;
+                if (!exists) { Spawn("boss"); Say("警报 · 监察者降临", 4); Event("boss"); }
+            }
+            float pressure = 1 + Math.Min(Time / 125, 5.8f);
+            float phaseRate = phase == 0 ? 1.1f : phase == 1 ? 2.8f : 0.20f;
+            float rate = pressure * phaseRate * (Difficulty == 1 ? 1.25f : 1);
+            if (Time >= nextSquad && phase != 2)
+            {
+                nextSquad = Time + (Time >= 180 ? 21 : 30); SpawnSquad();
+                Say("中继编队 · 击破信标可打断合围", 3.5f); Event("wave");
+            }
+            if (Time >= nextElite && phase != 2)
+            {
+                nextElite = Time + (Time >= 180 ? 24 : 40);
+                int elites = 0;
+                for (int i = 0; i < Enemies.Count; i++) if (Enemies[i].Elite && Enemies[i].Hp > 0) elites++;
+                if (elites < 8) { Spawn("prism"); if (Time >= 90) Spawn("repairer"); }
+            }
+            spawnClock -= dt;
+            int budget = 6;
+            while (spawnClock <= 0 && budget-- > 0)
+            {
+                spawnClock += 1 / rate;
+                double roll = random.NextDouble();
+                string kind = "chaser";
+                if (Time > 18 && roll < .18) kind = "runner";
+                else if (Time > 35 && roll < .34) kind = "shooter";
+                else if (Time > 55 && roll < .46) kind = "bomber";
+                else if (Time > 25 && roll > .89) kind = "tank";
+                Spawn(kind);
+            }
+        }
+
+        private void Spawn(string kind)
+        {
+            if (Enemies.Count >= EnemyLimit)
+            {
+                if (kind != "boss") return;
+                int remove = -1;
+                for (int i = 0; i < Enemies.Count; i++) if (Enemies[i].Kind != "boss") { remove = i; break; }
+                if (remove < 0) return;
+                RemoveFast(Enemies, remove);
+            }
+            float sx = 40, sy = 120;
+            for (int tries = 0; tries < 12; tries++)
+            {
+                int edge = random.Next(4);
+                sx = edge == 0 ? Left + 18 : edge == 1 ? Right - 18 : Left + 18 + (float)random.NextDouble() * (Right - Left - 36);
+                sy = edge == 2 ? Top + 18 : edge == 3 ? Bottom - 18 : Top + 18 + (float)random.NextDouble() * (Bottom - Top - 36);
+                if (DistanceSquared(sx, sy, X, Y) > 260 * 260) break;
+            }
+            // Bounded scaling: late pressure comes from additional roles and attack patterns.
+            float scaling = Math.Min(16, (float)Math.Pow(1 + Time / 130, 1.38)) * (Difficulty == 1 ? 1.2f : 1);
+            float radius = kind == "tank" ? 22 : kind == "prism" ? 24 : kind == "boss" ? 38 : kind == "relay" ? 19 : kind == "repairer" ? 17 : kind == "runner" ? 10 : kind == "bomber" ? 17 : 13;
+            float health = kind == "boss" ? 1600 * (1 + Math.Min(bossCycle, 8) * 0.55f) : kind == "prism" ? 85 : kind == "repairer" ? 48 : kind == "tank" ? 56 : kind == "relay" ? 62 : kind == "bomber" ? 24 : kind == "shooter" ? 19 : kind == "runner" ? 12 : 18;
+            float speed = kind == "runner" ? 112 : kind == "tank" ? 86 : kind == "prism" ? 112 : kind == "repairer" ? 102 : kind == "boss" ? 60 : kind == "relay" ? 98 : kind == "shooter" ? 88 : kind == "bomber" ? 83 : 78;
+            Enemy enemy = new Enemy();
+            enemy.Id = ++nextId; enemy.Kind = kind; enemy.X = sx; enemy.Y = sy; enemy.R = radius;
+            enemy.Hp = enemy.MaxHp = health * (kind == "boss" ? Math.Min(3.2f, (float)Math.Pow(1 + Time / 600, 0.6)) : scaling);
+            enemy.Speed = speed * (1 + Math.Min(Time / 1800, 0.32f));
+            enemy.Damage = (kind == "tank" || kind == "boss" || kind == "prism" ? 20 : 12) * (1 + Math.Min(Time / 650, 2.5f)) * (Difficulty == 1 ? 1.2f : 1);
+            enemy.Elite = kind == "prism" || kind == "repairer";
+            float facing = (float)Math.Atan2(Y - sy, X - sx); enemy.FacingX = (float)Math.Cos(facing); enemy.FacingY = (float)Math.Sin(facing);
+            enemy.Cooldown = 0.7f + (float)random.NextDouble() * 1.5f;
+            if (enemy.Elite) enemy.Cooldown = .12f;
+            enemy.Timer = 0.55f; enemy.AttackPhase = -1;
+            Enemies.Add(enemy); AddEffect("spawn", sx, sy, 0, 0, radius + 8, 0.55f);
+        }
+
+        private void UpdateEnemies(float dt) { UpdateTacticalEnemies(dt); }
+
+        private void BuildGrid()
+        {
+            for (int i = 0; i < grid.Length; i++) if (grid[i] != null) grid[i].Clear();
+            for (int i = 0; i < Enemies.Count; i++)
+            {
+                Enemy e = Enemies[i]; if (e.Hp <= 0 || e.AttackPhase == -1) continue;
+                int cell = Cell(e.X, e.Y); if (grid[cell] == null) grid[cell] = new List<Enemy>(8); grid[cell].Add(e);
+            }
+        }
+
+        private Enemy Nearest(float x, float y, float radius, HashSet<int> exclude)
+        {
+            Enemy best = null; float bestDistance = radius * radius;
+            Enemy focused = FindEnemy(FocusTargetId);
+            if (focused != null && focused.Hp > 0 && focused.AttackPhase != -1 && (exclude == null || !exclude.Contains(focused.Id)) && DistanceSquared(x, y, focused.X, focused.Y) < bestDistance) return focused;
+            int minX = Math.Max(0, (int)((x - radius) / GridSize)), maxX = Math.Min(GridColumns - 1, (int)((x + radius) / GridSize));
+            int minY = Math.Max(0, (int)((y - radius) / GridSize)), maxY = Math.Min(GridRows - 1, (int)((y + radius) / GridSize));
+            for (int gy = minY; gy <= maxY; gy++) for (int gx = minX; gx <= maxX; gx++)
+            {
+                List<Enemy> bucket = grid[gy * GridColumns + gx]; if (bucket == null) continue;
+                for (int i = 0; i < bucket.Count; i++)
+                {
+                    Enemy e = bucket[i]; if (e.Hp <= 0 || (exclude != null && exclude.Contains(e.Id))) continue;
+                    float distance = DistanceSquared(x, y, e.X, e.Y);
+                    if (distance < bestDistance) { bestDistance = distance; best = e; }
+                }
+            }
+            return best;
+        }
+
+        private void UpdateWeapons(float dt)
+        {
+            boltClock -= dt; arcClock -= dt; bladeClock -= dt; bladeAngle += dt * (2.2f + Rank("haste") * .12f);
+            Enemy aim = Nearest(X, Y, 700, null);
+            if (aim != null)
+            {
+                float dx = aim.X - X, dy = aim.Y - Y, d = (float)Math.Sqrt(dx * dx + dy * dy);
+                AimX = dx / Math.Max(d, .001f); AimY = dy / Math.Max(d, .001f);
+            }
+            int bolt = Rank("bolt");
+            if (bolt > 0 && boltClock <= 0 && aim != null)
+            {
+                boltClock = .62f / FireRateMultiplier / (1 + bolt * .08f);
+                int count = bolt >= 5 ? 5 : bolt >= 3 ? 3 : 1;
+                float damage = (20 + bolt * 6) * PowerMultiplier;
+                float angle = (float)Math.Atan2(AimY, AimX);
+                for (int j = 0; j < count; j++) AddShot(X + AimX * 16, Y + AimY * 16, angle + (j - (count - 1) / 2f) * .115f, 680, damage, false, bolt >= 5 ? 3 : bolt >= 2 ? 1 : 0, bolt >= 5 ? "nova" : "bolt");
+                Event("shoot");
+            }
+            int arc = Rank("arc");
+            if (arc > 0 && arcClock <= 0)
+            {
+                Enemy target = Nearest(X, Y, 330 + arc * 24, null);
+                if (target != null)
+                {
+                    arcClock = 1.2f / FireRateMultiplier; chainHits.Clear();
+                    int chains = arc >= 5 ? 9 : 2 + arc;
+                    float sx = X, sy = Y;
+                    for (int j = 0; j < chains && target != null; j++)
+                    {
+                        chainHits.Add(target.Id); AddEffect("arc", sx, sy, target.X, target.Y, arc >= 5 ? 5 : 3, .16f);
+                        DamageEnemy(target, (19 + arc * 7) * PowerMultiplier * (arc >= 5 ? 1 : (float)Math.Pow(.9, j)), "arc");
+                        sx = target.X; sy = target.Y; target = Nearest(sx, sy, 170 + arc * 13, chainHits);
+                    }
+                    Event("arc");
+                }
+            }
+            int blade = Rank("blade");
+            if (blade > 0 && bladeClock <= 0)
+            {
+                bladeClock = .14f / FireRateMultiplier;
+                int count = blade >= 5 ? 6 : 1 + blade;
+                float orbit = 63 + blade * 6;
+                for (int j = 0; j < count; j++)
+                {
+                    float angle = bladeAngle + j * (float)Math.PI * 2 / count;
+                    float bx = X + (float)Math.Cos(angle) * orbit, by = Y + (float)Math.Sin(angle) * orbit;
+                    DamageArea(bx, by, blade >= 5 ? 27 : 20, (8 + blade * 3) * PowerMultiplier, null);
+                    if (blade >= 5)
+                    {
+                        for (int k = Shots.Count - 1; k >= 0; k--)
+                            if (Shots[k].Hostile && DistanceSquared(bx, by, Shots[k].X, Shots[k].Y) < 29 * 29) RemoveFast(Shots, k);
+                    }
+                }
+            }
+        }
+
+        private void DamageArea(float x, float y, float radius, float damage, Enemy excluded)
+        {
+            int minX = Math.Max(0, (int)((x - radius - 40) / GridSize)), maxX = Math.Min(GridColumns - 1, (int)((x + radius + 40) / GridSize));
+            int minY = Math.Max(0, (int)((y - radius - 40) / GridSize)), maxY = Math.Min(GridRows - 1, (int)((y + radius + 40) / GridSize));
+            for (int gy = minY; gy <= maxY; gy++) for (int gx = minX; gx <= maxX; gx++)
+            {
+                List<Enemy> bucket = grid[gy * GridColumns + gx]; if (bucket == null) continue;
+                for (int i = 0; i < bucket.Count; i++)
+                {
+                    Enemy e = bucket[i]; if (e == excluded || e.Hp <= 0) continue;
+                    if (DistanceSquared(x, y, e.X, e.Y) < (radius + e.R) * (radius + e.R)) DamageEnemy(e, damage, "blade", x, y);
+                }
+            }
+        }
+
+        private void AddShot(float x, float y, float angle, float speed, float damage, bool hostile, int pierce, string kind)
+        {
+            if (Shots.Count >= ShotLimit) return;
+            Shot s = new Shot(); s.X = x; s.Y = y; s.VX = (float)Math.Cos(angle) * speed; s.VY = (float)Math.Sin(angle) * speed;
+            s.R = hostile ? 6 : kind == "nova" ? 5 : 4; s.Damage = damage; s.Hostile = hostile;
+            s.Pierce = pierce; s.Kind = kind; s.Life = hostile ? 6 : 2;
+            Shots.Add(s);
+        }
+
+        private void UpdateShots(float dt)
+        {
+            for (int i = Shots.Count - 1; i >= 0; --i)
+            {
+                Shot s = Shots[i]; s.X += s.VX * dt; s.Y += s.VY * dt; s.Life -= dt;
+                bool remove = s.Life <= 0 || s.X < Left - 20 || s.X > Right + 20 || s.Y < Top - 20 || s.Y > Bottom + 20;
+                if (!remove && s.Hostile)
+                {
+                    if (DistanceSquared(s.X, s.Y, X, Y) < (s.R + 11) * (s.R + 11)) { Hurt(s.Damage); remove = true; }
+                }
+                else if (!remove)
+                {
+                    int minX = Math.Max(0, (int)((s.X - 45) / GridSize)), maxX = Math.Min(GridColumns - 1, (int)((s.X + 45) / GridSize));
+                    int minY = Math.Max(0, (int)((s.Y - 45) / GridSize)), maxY = Math.Min(GridRows - 1, (int)((s.Y + 45) / GridSize));
+                    for (int gy = minY; gy <= maxY && !remove; gy++) for (int gx = minX; gx <= maxX && !remove; gx++)
+                    {
+                        List<Enemy> bucket = grid[gy * GridColumns + gx]; if (bucket == null) continue;
+                        for (int j = 0; j < bucket.Count && !remove; j++)
+                        {
+                            Enemy e = bucket[j]; if (e.Hp <= 0 || (s.HitIds != null && s.HitIds.Contains(e.Id))) continue;
+                            if (DistanceSquared(s.X, s.Y, e.X, e.Y) < (s.R + e.R) * (s.R + e.R))
+                            {
+                                DamageEnemy(e, s.Damage, s.Kind, Math.Abs(s.VX) + Math.Abs(s.VY) > .01f ? e.X - s.VX : X, Math.Abs(s.VX) + Math.Abs(s.VY) > .01f ? e.Y - s.VY : Y);
+                                if (s.Pierce <= 0) remove = true;
+                                else { s.Pierce--; if (s.HitIds == null) s.HitIds = new HashSet<int>(); s.HitIds.Add(e.Id); }
+                            }
+                        }
+                    }
+                }
+                if (remove) RemoveFast(Shots, i);
+                if (Mode == "over") return;
+            }
+        }
+
+        private void DamageEnemy(Enemy e, float damage)
+        { DamageEnemy(e, damage, "bolt"); }
+
+        private void DamageEnemy(Enemy e, float damage, string weapon)
+        { DamageEnemy(e, damage, weapon, X, Y); }
+
+        private void DamageEnemy(Enemy e, float damage, string weapon, float sourceX, float sourceY)
+        {
+            if (e.Hp <= 0) return;
+            damage = ApplyWorldDamage(e, damage, weapon);
+            if (random.NextDouble() < Rank("crit") * .065f) damage *= 2;
+            if (IsProtected(e)) damage *= .52f;
+            damage = ApplyTacticalDamage(e, damage, sourceX, sourceY);
+            e.Hp -= damage; AddEffect("hit", e.X, e.Y, 0, 0, e.R * .5f + 5, .10f); Event("hit");
+            if (e.Hp <= 0 && e.Kind == "relay") DisruptRelay(e);
+        }
+
+        private void CollectDead()
+        {
+            for (int i = Enemies.Count - 1; i >= 0; --i)
+            {
+                Enemy e = Enemies[i]; if (e.Hp > 0) continue;
+                if (e.Kind == "relay") DisruptRelay(e);
+                CancelEnemyWarning(e.Id);
+                if (FocusTargetId == e.Id) FocusTargetId = 0;
+                Kills++; Coins += e.Kind == "boss" ? 60 : e.Kind == "relay" ? 8 : e.Elite ? 6 : e.Kind == "tank" ? 3 : 1;
+                float value = (e.Kind == "boss" ? 42 : e.Kind == "relay" ? 8 : e.Elite ? 5 : e.Kind == "tank" ? 3 : e.Kind == "bomber" ? 2 : 1) * (1 + Time / 110);
+                if (e.Kind == "boss")
+                {
+                    Rerolls = Math.Min(9, Rerolls + 1); Say("监察者击破 · +60 零件 · +1 重掷", 4); Event("bosskill");
+                    Hp = Math.Min(MaxHp, Hp + MaxHp * .2f);
+                }
+                OnWorldEnemyDeath(e);
+                AddOrb(e.X, e.Y, value); AddEffect("death", e.X, e.Y, 0, 0, e.R + 15, .3f); RemoveFast(Enemies, i);
+            }
+        }
+
+        private void AddOrb(float x, float y, float value)
+        {
+            if (Orbs.Count >= OrbLimit)
+            {
+                int nearest = 0; float distance = float.MaxValue;
+                for (int i = 0; i < Orbs.Count; i++) { float d = DistanceSquared(x, y, Orbs[i].X, Orbs[i].Y); if (d < distance) { distance = d; nearest = i; } }
+                Orbs[nearest].Value += value; Orbs[nearest].R = Math.Min(9, 4 + (float)Math.Sqrt(Orbs[nearest].Value) * .6f); return;
+            }
+            Orb orb = new Orb(); orb.X = x; orb.Y = y; orb.Value = value; Orbs.Add(orb);
+        }
+
+        private void UpdateOrbs(float dt)
+        {
+            float radius = PickupRadius + (Phase == "喘息" ? 90 : 0);
+            for (int i = Orbs.Count - 1; i >= 0; --i)
+            {
+                Orb o = Orbs[i]; float dx = X - o.X, dy = Y - o.Y, d2 = dx * dx + dy * dy;
+                if (d2 < 22 * 22) { GainXp(o.Value); RemoveFast(Orbs, i); Event("pickup"); }
+                else if (d2 < radius * radius)
+                {
+                    float d = (float)Math.Sqrt(d2), speed = 340 + (radius - d) * 3;
+                    float step = Math.Min(d, speed * dt); o.X += dx / d * step; o.Y += dy / d * step;
+                }
+            }
+        }
+
+        private void Hurt(float damage)
+        {
+            if (Invulnerable > 0 || Mode != "play") return;
+            Hp = Math.Max(0, Hp - AbsorbWorldDamage(damage * (1 - Math.Min(.42f, Rank("guard") * .06f))));
+            Invulnerable = Math.Max(Invulnerable, .6f); AddEffect("hurt", X, Y, 0, 0, 30, .24f); Event("hurt");
+            if (Hp <= 0) Die();
+        }
+
+        private void Die() { Hp = 0; Mode = "over"; Choices.Clear(); pendingLevels = 0; Event("death"); }
+        private void GainXp(float value) { Xp += value * (1 + Rank("scholar") * .18f); ResolveXp(); }
+        private void ResolveXp()
+        {
+            if (float.IsNaN(Xp) || float.IsInfinity(Xp)) Xp = 0;
+            int budget = 200;
+            while (Xp >= NextXp && budget-- > 0)
+            {
+                Xp -= NextXp; Level++; pendingLevels++;
+                float growth = Level - 1, mature = Math.Max(0, growth - 8);
+                NextXp = 18 + growth * 7 + mature * mature * 1.5f;
+            }
+        }
+
+        private void ContinueState()
+        {
+            if (Mode == "over" || Hp <= 0) { if (Mode != "over") Die(); return; }
+            if (pendingLevels > 0)
+            {
+                Mode = "level"; RollChoices(); Event("level");
+            }
+            else if (pendingShop && !HasLivingBoss()) { OpenShop(); }
+            else Mode = "play";
+        }
+
+        public void Choose(int index)
+        {
+            if (Mode != "level" || index < 0 || index >= Choices.Count || Hp <= 0) { if (Hp <= 0 && Mode != "menu") Die(); return; }
+            Apply(Choices[index].Id); pendingLevels = Math.Max(0, pendingLevels - 1); Choices.Clear(); ContinueState();
+        }
+
+        public void Reroll()
+        {
+            if (Mode != "level" || Rerolls <= 0 || Hp <= 0) return;
+            Rerolls--; RollChoices(); Event("reroll");
+        }
+
+        public void Buy(int index)
+        {
+            if (Mode != "shop" || Hp <= 0 || index < 0 || index >= ShopOffers.Count) return;
+            Upgrade offer = ShopOffers[index]; if (offer.Price < 0 || Coins < offer.Price) return;
+            Coins -= offer.Price; Apply(offer.Id); ShopOffers.RemoveAt(index); Event("buy");
+        }
+
+        public void LeaveShop()
+        {
+            if (Mode != "shop") return;
+            ShopOffers.Clear(); Say("补给完成 · 继续突围", 2.5f); ContinueState();
+        }
+
+        private void OpenShop()
+        {
+            pendingShop = false; Mode = "shop"; ShopOffers.Clear();
+            Upgrade repair = MakeUpgrade("supply"); repair.Price = 0; ShopOffers.Add(repair);
+            List<string> ids = AvailableUpgrades();
+            for (int i = 0; i < 2 && ids.Count > 0; i++)
+            {
+                int pick = random.Next(ids.Count); Upgrade offer = MakeUpgrade(ids[pick]);
+                offer.Price = 38 + Rank(offer.Id) * 16 + Stage * 3; ShopOffers.Add(offer); ids.RemoveAt(pick);
+            }
+            Say("补给窗口 · 战场已暂停", 4); Event("shop");
+        }
+
+        private void RollChoices()
+        {
+            Choices.Clear(); List<string> ids = AvailableUpgrades();
+            // Every draft keeps a weapon route available until all three routes are evolved.
+            List<string> weapons = new List<string>();
+            string[] weaponIds = { "bolt", "arc", "blade" };
+            for (int i = 0; i < weaponIds.Length; i++)
+            {
+                string weapon = weaponIds[i]; if (Rank(weapon) >= 5) continue;
+                weapons.Add(weapon);
+                if (Rank(weapon) > 0) { weapons.Add(weapon); weapons.Add(weapon); }
+            }
+            if (weapons.Count > 0)
+            {
+                string picked = weapons[random.Next(weapons.Count)]; Choices.Add(MakeUpgrade(picked)); ids.Remove(picked);
+            }
+            // Keep a world-linked build decision in each draft, weighted toward prior investment.
+            List<string> schoolChoices = new List<string>();
+            for (int i = 0; i < ids.Count; i++)
+            {
+                if (!Lore.IsSchoolUpgrade(ids[i])) continue;
+                schoolChoices.Add(ids[i]);
+                if (SchoolPoints(Lore.SchoolOf(ids[i])) > 0) { schoolChoices.Add(ids[i]); schoolChoices.Add(ids[i]); }
+            }
+            if (schoolChoices.Count > 0 && Choices.Count < 3)
+            {
+                string picked = schoolChoices[random.Next(schoolChoices.Count)]; Choices.Add(MakeUpgrade(picked)); ids.Remove(picked);
+            }
+            while (Choices.Count < 3 && ids.Count > 0)
+            {
+                int pick = random.Next(ids.Count); Choices.Add(MakeUpgrade(ids[pick])); ids.RemoveAt(pick);
+            }
+        }
+
+        private List<string> AvailableUpgrades()
+        {
+            string[] all = { "bolt", "arc", "blade", "power", "haste", "vitality", "speed", "magnet", "scholar", "crit", "guard", "dash" };
+            List<string> result = new List<string>();
+            for (int i = 0; i < all.Length; i++) if (Rank(all[i]) < Cap(all[i])) result.Add(all[i]);
+            for (int i = 0; i < Lore.UpgradeIds.Length; i++)
+            {
+                string id = Lore.UpgradeIds[i];
+                if (id == "ember_cascade" && Rank("ember_brand") == 0) continue;
+                if (id == "echo_trace" && (Rank("bolt") > 0 ? 1 : 0) + (Rank("arc") > 0 ? 1 : 0) + (Rank("blade") > 0 ? 1 : 0) < 2) continue;
+                if (Rank(id) < Cap(id)) result.Add(id);
+            }
+            // At full build, level rewards continue to offer distinct useful infinite-run decisions.
+            if (result.Count < 3) result.Add("overclock");
+            if (result.Count < 3) result.Add("reserve");
+            if (result.Count < 3) result.Add("repair");
+            return result;
+        }
+
+        private static int Cap(string id)
+        {
+            if (Lore.IsSchoolUpgrade(id)) return 3;
+            if (id == "bolt" || id == "arc" || id == "blade") return 5;
+            if (id == "power" || id == "haste" || id == "vitality") return 8;
+            if (id == "speed" || id == "scholar" || id == "crit") return 6;
+            if (id == "magnet" || id == "dash") return 5;
+            return 7;
+        }
+
+        private Upgrade MakeUpgrade(string id)
+        {
+            Upgrade worldUpgrade = MakeWorldUpgrade(id); if (worldUpgrade != null) return worldUpgrade;
+            Upgrade u = new Upgrade(); u.Id = id; int rank = Rank(id); u.Tag = "信使改装"; u.School = Lore.SchoolOf(id); u.Flavor = "弥从暮环城的旧零件里，为这次投递留下的新办法。";
+            switch (id)
+            {
+                case "bolt": u.Name = rank == 4 ? "焚档 · 星火齐鸣" : "焚档 · 裂隙针 " + (rank + 1); u.Tag = "余烬公社 / 弹道"; u.Flavor = "把删去的名字，刻进监察者的外壳。"; u.Description = rank == 0 ? "获得自动瞄准的直线裂隙针。可混搭；武器等级不计入觉醒点数。" : rank == 4 ? "进化为五重弹幕，每枚穿透 3 个目标。" : "提高弹伤和射速；2 级穿透，3 级三重齐射。"; break;
+                case "arc": u.Name = rank == 4 ? "回声 · 万城同频" : "回声 · 链式信标 " + (rank + 1); u.Tag = "回声潜网 / 连锁"; u.Flavor = "只要还有一座街区回答，广播就没有结束。"; u.Description = rank == 0 ? "获得周期连锁电弧。可混搭；武器等级不计入觉醒点数。" : rank == 4 ? "连锁 9 个目标，移除后续跳跃伤害衰减。" : "提高电弧伤害、射程与连锁数量。"; break;
+                case "blade": u.Name = rank == 4 ? "铸卫 · 不落城墙" : "铸卫 · 轨道棱 " + (rank + 1); u.Tag = "铸城工坊 / 环刃"; u.Flavor = "巡夜人的城墙，现在跟着信使移动。"; u.Description = rank == 0 ? "获得两枚近身旋转环刃。可混搭；武器等级不计入觉醒点数。" : rank == 4 ? "六枚大型环刃，可拦截碰到的敌方子弹。" : "增加环刃数量、伤害与旋转半径。"; break;
+                case "power": u.Name = "超载核心 " + (rank + 1); u.Description = "所有武器伤害增加 16%（按基础伤害相加）。"; u.Tag = "火力"; break;
+                case "haste": u.Name = "高频谐振 " + (rank + 1); u.Description = "所有武器攻击频率增加 12%，环刃转速提高。"; u.Tag = "攻速"; break;
+                case "vitality": u.Name = "复合装甲 " + (rank + 1); u.Description = "生命上限 +20，并立即恢复 30 点生命。"; u.Tag = "生存"; break;
+                case "speed": u.Name = "轻量推进 " + (rank + 1); u.Description = "移动速度 +16，便于绕开冲锋和范围攻击。"; u.Tag = "机动"; break;
+                case "magnet": u.Name = "磁场扩展 " + (rank + 1); u.Description = "经验吸取范围 +24。喘息阶段另有额外吸取范围。"; u.Tag = "收集"; break;
+                case "scholar": u.Name = "经验回路 " + (rank + 1); u.Description = "获得的经验增加 18%，与其他经验加成相加。"; u.Tag = "成长"; break;
+                case "crit": u.Name = "弱点解析 " + (rank + 1); u.Description = "全武器暴击率 +6.5%；暴击造成双倍伤害。"; u.Tag = "暴击"; break;
+                case "guard": u.Name = "缓冲护盾 " + (rank + 1); u.Description = "受到伤害减少 6%，最高减伤 42%。"; u.Tag = "生存"; break;
+                case "dash": u.Name = "相位冷却 " + (rank + 1); u.Description = "冲刺冷却减少 0.42 秒；冲刺时短暂无敌。"; u.Tag = "机动"; break;
+                case "overclock": u.Name = "极限超载"; u.Description = "满构筑奖励：全武器基础增伤再提高 8%。可重复获得。"; u.Tag = "无尽成长"; break;
+                case "reserve": u.Name = "备用能量"; u.Description = "满构筑奖励：生命上限 +10，并恢复 20 点。"; u.Tag = "无尽成长"; break;
+                case "supply": u.Name = "免费医疗补给"; u.Description = "恢复最大生命值的 25%，每次补给窗口限领取一次。"; u.Tag = "免费补给"; break;
+                default: u.Name = "紧急修复"; u.Description = "立即恢复最大生命值的 45%。"; u.Tag = "恢复"; break;
+            }
+            return u;
+        }
+
+        private void Apply(string id)
+        {
+            if (id == "repair" || id == "supply") { Hp = Math.Min(MaxHp, Hp + MaxHp * (id == "supply" ? .25f : .45f)); AddEffect("heal", X, Y, 0, 0, 40, .5f); return; }
+            if (id == "overclock") { Ranks[id] = Rank(id) + 1; TotalUpgrades++; return; }
+            if (id == "reserve") { MaxHp += 10; Hp = Math.Min(MaxHp, Hp + 20); TotalUpgrades++; return; }
+            int rank = Rank(id); if (rank >= Cap(id)) return;
+            Ranks[id] = rank + 1; TotalUpgrades++;
+            OnWorldUpgrade(id);
+            if (id == "vitality") { MaxHp += 20; Hp = Math.Min(MaxHp, Hp + 30); }
+            if ((id == "bolt" || id == "arc" || id == "blade") && rank == 4)
+            {
+                AddEffect("evolve", X, Y, 0, 0, 130, .8f); Say("武器进化 · " + MakeUpgrade(id).Tag, 4); Event("evolve");
+            }
+            else Event("upgrade");
+        }
+
+        private void AddEffect(string kind, float x, float y, float x2, float y2, float radius, float life)
+        {
+            if (Effects.Count >= EffectLimit) return;
+            Effect e = new Effect(); e.Kind = kind; e.X = x; e.Y = y; e.X2 = x2; e.Y2 = y2;
+            e.R = radius; e.Life = e.MaxLife = life; Effects.Add(e);
+        }
+        private void Say(string message, float duration) { Announcement = message; AnnouncementTime = duration; }
+        private bool HasLivingBoss() { for (int i = 0; i < Enemies.Count; i++) if (Enemies[i].Kind == "boss" && Enemies[i].Hp > 0) return true; return false; }
+        private void Event(string name) { if (Events.Count < 48 && !Events.Contains(name)) Events.Add(name); }
+        private static float Clamp(float value, float min, float max) { return Math.Max(min, Math.Min(max, value)); }
+        private static float DistanceSquared(float ax, float ay, float bx, float by) { float x = ax - bx, y = ay - by; return x * x + y * y; }
+        private static int Cell(float x, float y) { return Math.Max(0, Math.Min(GridRows - 1, (int)(y / GridSize))) * GridColumns + Math.Max(0, Math.Min(GridColumns - 1, (int)(x / GridSize))); }
+        private static void RemoveFast<T>(List<T> list, int index) { int last = list.Count - 1; list[index] = list[last]; list.RemoveAt(last); }
+    }
+}
+
+
+using System;
+using System.Collections.Generic;
+
+namespace NeonEmber
+{
+    public partial class Enemy
+    {
+        // GuardId is reciprocal: guard -> protected unit, protected unit -> guard.
+        public int RelayId, GuardId;
+        public float Stun, Recovery, OrderX, OrderY;
+        public bool Shielded, RelayBroken;
+        public string Order = "追踪";
+        public bool Elite;
+        public string Role = "游猎", Intent = "追踪", BrainState = "准备";
+        public float FacingX = 1, FacingY, Channel, MaxChannel, SquadClock;
+        public int RepairTargetId, AttackSerial, BossStage = 1;
+        public float PhaseLeft;
+    }
+
+    public class Hazard
+    {
+        public int OwnerId;
+        public float X, Y, R, Warning, Life, Damage;
+        public string Shape = "circle";
+        public float X2, Y2, InnerR;
+    }
+
+    public partial class Game
+    {
+        public const int HazardLimit = 12, SpecialAttackLimit = 3;
+        public float PlayerVX, PlayerVY;
+        public int FocusTargetId;
+        public string TacticName = "游猎 · 观察前摇后转向";
+        public string MotionReadout = "轨迹采样中", SquadPhase = "游猎";
+        public float CircleConfidence, ObservedTurnRate, ObservedDashAge = 99, PredictedX, PredictedY, SquadPhaseLeft;
+        public List<Hazard> Hazards = new List<Hazard>();
+        private readonly Dictionary<int, Enemy> tacticalIndex = new Dictionary<int, Enemy>();
+        private float tacticClock, nextSquad, nextSpecial;
+        private float lastObservedVX, lastObservedVY, turnHistory, turnSign, nextElite;
+
+        public static string EnemyName(string kind)
+        {
+            switch (kind) {
+                case "relay": return "指挥节点"; case "tank": return "护航盾卫";
+                case "shooter": return "火力手"; case "runner": return "截击者";
+                case "bomber": return "封路者"; case "repairer": return "维护者";
+                case "prism": return "棱镜卫"; case "boss": return "监察者";
+                default: return "追缉机";
+            }
+        }
+        public static string EnemyCounter(string kind)
+        {
+            switch (kind) {
+                case "relay": return "压制后接截击；优先锁定节点，击破可中断编队。";
+                case "tank": return "必须站在盟友前方才能护航；从侧面绕开护面。";
+                case "shooter": return "预判轨迹后锁定射线；看到蓄力再改变路线。";
+                case "runner": return "等待火力压制后截击；保留冲刺躲第二波。";
+                case "bomber": return "读取持续转向，封锁弧线前方；反向或切入内圈。";
+                case "repairer": return "金色连线引导修复；直接命中或干扰可以打断，不会复活。";
+                case "prism": return "护面转向较慢；正面减伤，侧背暴露。冲刺干扰可以破甲。";
+                case "boss": return "圆区、切割线、环区交替；环内安全，攻击后有恢复弱点。";
+                default: return "侧向逼近，切入空隙；连续绕圈会被后续编队识别。";
+            }
+        }
+
+        private void ResetTactics()
+        {
+            PlayerVX = PlayerVY = 0; FocusTargetId = 0; tacticClock = nextSpecial = 0;
+            nextSquad = 36; nextElite = 48; Hazards.Clear(); tacticalIndex.Clear();
+            lastObservedVX = lastObservedVY = turnHistory = turnSign = CircleConfidence = ObservedTurnRate = 0;
+            ObservedDashAge = 99; PredictedX = X; PredictedY = Y; SquadPhase = "游猎"; SquadPhaseLeft = 0; MotionReadout = "轨迹采样中";
+            TacticName = "游猎 · 观察前摇后转向";
+        }
+
+        private void ObserveMovement(float dt, float previousX, float previousY)
+        {
+            // Only displacement already observed is available to enemy planning. Do not use input.
+            float vx = (X - previousX) / dt, vy = (Y - previousY) / dt;
+            float speed = (float)Math.Sqrt(vx * vx + vy * vy);
+            ObservedDashAge = Math.Min(99, ObservedDashAge + dt);
+            // A fast displacement is evidence that a dash happened. Never inspect dash input/cooldown.
+            if (speed > 440) { ObservedDashAge = 0; turnHistory = Math.Max(0, turnHistory - dt * 2); }
+            float previousSpeed = (float)Math.Sqrt(lastObservedVX * lastObservedVX + lastObservedVY * lastObservedVY);
+            if (speed > 80 && speed < 440 && previousSpeed > 80 && ObservedDashAge > .22f)
+            {
+                float turn = (float)Math.Atan2(lastObservedVX * vy - lastObservedVY * vx, lastObservedVX * vx + lastObservedVY * vy) / dt;
+                if (Math.Abs(turn) > .16f && Math.Abs(turn) < 3.2f)
+                {
+                    float sign = Math.Sign(turn);
+                    if (sign != turnSign) { turnHistory = 0; CircleConfidence *= .2f; }
+                    turnSign = sign; turnHistory = Math.Min(3, turnHistory + dt);
+                    ObservedTurnRate += (turn - ObservedTurnRate) * Math.Min(1, dt * 5);
+                }
+                else
+                {
+                    turnHistory = Math.Max(0, turnHistory - dt * 2);
+                    ObservedTurnRate *= Math.Max(0, 1 - dt * 5);
+                    if (Math.Abs(turn) >= 3.2f) CircleConfidence *= .25f;
+                }
+            }
+            else { turnHistory = Math.Max(0, turnHistory - dt); ObservedTurnRate *= Math.Max(0, 1 - dt * 3); }
+            CircleConfidence += (Clamp((turnHistory - .35f) / 1.1f, 0, 1) - CircleConfidence) * Math.Min(1, dt * 3);
+            lastObservedVX = vx; lastObservedVY = vy;
+            if (speed > 300) { vx *= 300 / speed; vy *= 300 / speed; }
+            float blend = Math.Min(1, dt * 12);
+            PlayerVX += (vx - PlayerVX) * blend; PlayerVY += (vy - PlayerVY) * blend;
+            PredictPosition(1.2f, out PredictedX, out PredictedY);
+            MotionReadout = ObservedDashAge < .6f ? "检测到冲刺 · 截击者准备接力" : CircleConfidence > .55f ? "弧线轨迹已识别 · 变向或切入内圈" : "线性推演 · 蓄力后变向可欺骗瞄准";
+        }
+
+        private void PredictPosition(float seconds, out float tx, out float ty)
+        {
+            if (DecoyTime > 0) { tx = DecoyX; ty = DecoyY; return; }
+            seconds = Clamp(seconds, 0, 2.6f);
+            float omega = CircleConfidence > .35f ? ObservedTurnRate * CircleConfidence : 0;
+            if (Math.Abs(omega) > .12f)
+            {
+                // Integrate the observed turn rate, rather than aiming along an impossible tangent.
+                float angle = omega * seconds, sin = (float)Math.Sin(angle), cos = (float)Math.Cos(angle);
+                tx = X + (PlayerVX * sin + PlayerVY * (cos - 1)) / omega;
+                ty = Y + (PlayerVX * (1 - cos) + PlayerVY * sin) / omega;
+            }
+            else { tx = X + PlayerVX * seconds; ty = Y + PlayerVY * seconds; }
+            tx = Clamp(tx, Left + 18, Right - 18); ty = Clamp(ty, Top + 18, Bottom - 18);
+        }
+
+        private Enemy FindEnemy(int id)
+        {
+            if (id <= 0) return null;
+            Enemy found;
+            if (tacticalIndex.TryGetValue(id, out found)) return found;
+            for (int i = 0; i < Enemies.Count; i++) if (Enemies[i].Id == id) return Enemies[i];
+            return null;
+        }
+
+        private void SpawnSquad()
+        {
+            if (Enemies.Count > EnemyLimit - 9) return;
+            int relayCount = 0;
+            for (int i = 0; i < Enemies.Count; i++) if (Enemies[i].Kind == "relay" && Enemies[i].Hp > 0) relayCount++;
+            if (relayCount >= 3) return;
+            Spawn("relay"); Enemy leader = Enemies[Enemies.Count - 1];
+            string[] kinds = Time >= 90 ? new string[] { "tank", "shooter", "shooter", "runner", "runner", "bomber", "repairer", "prism" }
+                : new string[] { "tank", "shooter", "shooter", "runner", "runner", "bomber" };
+            for (int i = 0; i < kinds.Length; i++)
+            {
+                Spawn(kinds[i]); Enemy member = Enemies[Enemies.Count - 1];
+                float angle = (float)(i * Math.PI * 2 / kinds.Length);
+                member.X = Clamp(leader.X + (float)Math.Cos(angle) * 82, Left + member.R, Right - member.R);
+                member.Y = Clamp(leader.Y + (float)Math.Sin(angle) * 82, Top + member.R, Bottom - member.R);
+                member.RelayId = leader.Id;
+                member.Cooldown += i * .28f;
+                // Spawn graphics must reflect the actual squad position.
+                AddEffect("spawn", member.X, member.Y, 0, 0, member.R + 8, .55f);
+            }
+            // A squad replaces part of the normal drip instead of adding unbounded density.
+            spawnClock += 1.4f;
+            tacticClock = 0;
+        }
+
+        private void UpdateSquadPhase(Enemy relay, float dt)
+        {
+            if (relay.Recovery > 0 || relay.JamTime > 0 || relay.Stun > 0)
+            { relay.SquadClock = 0; relay.BrainState = "恢复"; relay.PhaseLeft = Math.Max(relay.Recovery, relay.JamTime); return; }
+            if (relay.AttackPhase == -1) { relay.BrainState = "准备"; relay.PhaseLeft = 1.15f; return; }
+            relay.SquadClock = (relay.SquadClock + dt) % 6.9f;
+            float clock = relay.SquadClock;
+            relay.BrainState = clock < 1.15f ? "准备" : clock < 3.05f ? "压制" : clock < 5.25f ? "截击" : "恢复";
+            relay.PhaseLeft = (clock < 1.15f ? 1.15f : clock < 3.05f ? 3.05f : clock < 5.25f ? 5.25f : 6.9f) - clock;
+            relay.Intent = relay.BrainState == "准备" ? "展开交叉火力" : relay.BrainState == "压制" ? "远程封锁路线" : relay.BrainState == "截击" ? "近战接力围堵" : "重组 · 节点暴露";
+        }
+
+        private void UpdateTactics(float dt)
+        {
+            tacticalIndex.Clear();
+            for (int i = 0; i < Enemies.Count; i++) tacticalIndex[Enemies[i].Id] = Enemies[i];
+            for (int i = 0; i < Enemies.Count; i++)
+            {
+                Enemy e = Enemies[i];
+                if (e.Kind == "relay" && e.Hp <= 0) DisruptRelay(e);
+                e.Recovery = Math.Max(0, e.Recovery - dt);
+                if (e.Kind == "relay" && e.Hp > 0) UpdateSquadPhase(e, dt);
+                if (e.RelayId != 0)
+                {
+                    Enemy relay = FindEnemy(e.RelayId);
+                    if (relay == null || relay.Hp <= 0 || relay.JamTime > 0 || relay.Stun > 0 || relay.Recovery > 0 || DistanceSquared(e.X, e.Y, relay.X, relay.Y) > 460 * 460) e.RelayId = 0;
+                }
+                e.Shielded = false;
+            }
+            tacticClock -= dt;
+            if (tacticClock <= 0)
+            {
+                tacticClock = .22f;
+                AssignSquads(); AssignGuards();
+                for (int i = 0; i < Enemies.Count; i++) PlanPosition(Enemies[i]);
+            }
+            bool coordinated = false; Enemy visibleLeader = null; float leaderDistance = float.MaxValue;
+            for (int i = 0; i < Enemies.Count; i++)
+            {
+                Enemy e = Enemies[i]; if (e.Hp <= 0) continue;
+                e.Shielded = IsProtected(e);
+                if (e.RelayId > 0) coordinated = true;
+                if (e.Kind == "relay")
+                {
+                    float distance = DistanceSquared(X, Y, e.X, e.Y);
+                    if (distance < leaderDistance) { leaderDistance = distance; visibleLeader = e; }
+                }
+                else if (e.RelayId > 0)
+                {
+                    Enemy leader = FindEnemy(e.RelayId); if (leader != null) { e.BrainState = leader.BrainState; e.PhaseLeft = leader.PhaseLeft; }
+                }
+            }
+            Enemy focused = FindEnemy(FocusTargetId);
+            if (focused == null || focused.Hp <= 0) FocusTargetId = 0;
+            SquadPhase = visibleLeader != null ? visibleLeader.BrainState : "游猎";
+            SquadPhaseLeft = visibleLeader != null ? visibleLeader.PhaseLeft : 0;
+            TacticName = coordinated ? "中继合围 · " + SquadPhase + " · E 锁节点，切断下一轮接力" : "游猎 · " + MotionReadout;
+        }
+
+        private void AssignSquads()
+        {
+            Dictionary<int, int> assigned = new Dictionary<int, int>();
+            for (int i = 0; i < Enemies.Count; i++)
+            {
+                Enemy e = Enemies[i]; e.RelayId = 0;
+                if (e.Kind == "relay" || e.Kind == "boss" || e.Hp <= 0 || e.Recovery > 0 || e.JamTime > 0) continue;
+                float best = 420 * 420;
+                for (int j = 0; j < Enemies.Count; j++)
+                {
+                    Enemy relay = Enemies[j];
+                    if (relay.Kind != "relay" || relay.Hp <= 0 || relay.AttackPhase == -1 || relay.JamTime > 0 || relay.Stun > 0 || relay.Recovery > 0) continue;
+                    int members; if (assigned.TryGetValue(relay.Id, out members) && members >= 10) continue;
+                    float d = DistanceSquared(e.X, e.Y, relay.X, relay.Y);
+                    if (d < best) { best = d; e.RelayId = relay.Id; }
+                }
+                if (e.RelayId > 0) { int members; assigned.TryGetValue(e.RelayId, out members); assigned[e.RelayId] = members + 1; }
+            }
+        }
+
+        private void AssignGuards()
+        {
+            for (int i = 0; i < Enemies.Count; i++) Enemies[i].GuardId = 0;
+            for (int i = 0; i < Enemies.Count; i++)
+            {
+                Enemy guard = Enemies[i];
+                if (guard.Kind != "tank" || guard.Hp <= 0 || guard.JamTime > 0 || guard.Stun > 0 || guard.Recovery > 0) continue;
+                Enemy target = null; float best = 235 * 235;
+                for (int j = 0; j < Enemies.Count; j++)
+                {
+                    Enemy e = Enemies[j];
+                    if ((e.Kind != "shooter" && e.Kind != "relay" && e.Kind != "repairer" && e.Kind != "prism") || e.Hp <= 0 || e.GuardId != 0 || e.Stun > 0) continue;
+                    if (guard.RelayId > 0 && e.RelayId != guard.RelayId && e.Id != guard.RelayId) continue;
+                    float distance = DistanceSquared(guard.X, guard.Y, e.X, e.Y);
+                    if (e.Kind == "relay") distance *= 1.3f;
+                    if (e.Kind == "prism") distance *= .65f;
+                    if (distance < best) { best = distance; target = e; }
+                }
+                if (target != null) { guard.GuardId = target.Id; target.GuardId = guard.Id; }
+            }
+        }
+
+        private void PlanPosition(Enemy e)
+        {
+            float tx = DecoyTime > 0 ? DecoyX : X, ty = DecoyTime > 0 ? DecoyY : Y;
+            float dx = e.X - tx, dy = e.Y - ty, distance = (float)Math.Sqrt(dx * dx + dy * dy);
+            float nx = dx / Math.Max(1, distance), ny = dy / Math.Max(1, distance);
+            float side = (e.Id & 1) == 0 ? 1 : -1;
+            bool linked = e.RelayId > 0 && e.Recovery <= 0;
+            e.OrderX = tx; e.OrderY = ty; e.Order = "追踪";
+            e.Role = e.Kind == "relay" ? "指挥" : e.Kind == "repairer" ? "续航" : e.Kind == "prism" ? "破阵" : e.Kind == "tank" ? "掩护" : e.Kind == "runner" ? "截击" : e.Kind == "shooter" ? "压制" : e.Kind == "bomber" ? "封路" : "驱赶";
+            if (e.Kind == "tank" && e.GuardId > 0)
+            {
+                Enemy ally = FindEnemy(e.GuardId);
+                if (ally != null)
+                {
+                    float ax = tx - ally.X, ay = ty - ally.Y, ad = (float)Math.Sqrt(ax * ax + ay * ay);
+                    e.OrderX = ally.X + ax / Math.Max(ad, 1) * 62;
+                    e.OrderY = ally.Y + ay / Math.Max(ad, 1) * 62;
+                    e.Order = "掩护";
+                }
+            }
+            else if (e.Kind == "repairer")
+            {
+                Enemy patient = FindRepairTarget(e);
+                if (patient != null)
+                {
+                    float ax = patient.X - tx, ay = patient.Y - ty, ad = (float)Math.Sqrt(ax * ax + ay * ay);
+                    e.OrderX = patient.X + ax / Math.Max(1, ad) * 75; e.OrderY = patient.Y + ay / Math.Max(1, ad) * 75;
+                    e.Order = "搜寻伤员";
+                }
+                else { e.OrderX = tx + nx * 355 - ny * side * 70; e.OrderY = ty + ny * 355 + nx * side * 70; e.Order = "后方待命"; }
+            }
+            else if (e.Kind == "shooter" || e.Kind == "relay" || e.Kind == "bomber")
+            {
+                float orbit = e.Kind == "relay" ? 345 : e.Kind == "bomber" ? 325 : 300;
+                Enemy leader = FindEnemy(e.RelayId);
+                if (linked && leader != null)
+                {
+                    dx = leader.X - tx; dy = leader.Y - ty; distance = (float)Math.Sqrt(dx * dx + dy * dy);
+                    nx = dx / Math.Max(distance, 1); ny = dy / Math.Max(distance, 1);
+                }
+                float lateral = linked && e.Kind == "shooter" ? side * 145 : side * 50;
+                e.OrderX = tx + nx * orbit - ny * lateral; e.OrderY = ty + ny * orbit + nx * lateral;
+                e.Order = e.Kind == "relay" ? "指挥" : e.Kind == "bomber" ? "封路" : linked ? "交叉火力" : "拉开距离";
+            }
+            else if ((e.Kind == "chaser" || e.Kind == "runner" || e.Kind == "prism") && distance > 75)
+            {
+                float predict = linked ? 1.15f : .55f;
+                float lateral = linked ? 80 : 28;
+                PredictPosition(predict, out e.OrderX, out e.OrderY);
+                e.OrderX -= ny * side * lateral; e.OrderY += nx * side * lateral;
+                e.Order = linked ? "侧翼截击" : "弧线切入";
+                Enemy leader = FindEnemy(e.RelayId);
+                if (linked && leader != null && (leader.BrainState == "准备" || leader.BrainState == "压制"))
+                {
+                    // Hold both lateral approach routes while ranged units force a response.
+                    e.OrderX += nx * 145; e.OrderY += ny * 145; e.Order = "保留截击";
+                }
+            }
+            if (e.Kind != "relay" && e.AttackPhase == 0 && e.Recovery <= 0 && e.Channel <= 0) e.Intent = e.Order;
+            e.OrderX = Clamp(e.OrderX, Left + e.R, Right - e.R);
+            e.OrderY = Clamp(e.OrderY, Top + e.R, Bottom - e.R);
+        }
+
+        private Enemy FindRepairTarget(Enemy healer)
+        {
+            Enemy target = null; float best = float.MaxValue;
+            for (int i = 0; i < Enemies.Count; i++)
+            {
+                Enemy e = Enemies[i];
+                if (e == healer || e.Kind == "boss" || e.Kind == "repairer" || e.Hp <= 0 || e.AttackPhase == -1 || e.Hp >= e.MaxHp * .86f) continue;
+                float distance = DistanceSquared(e.X, e.Y, healer.X, healer.Y);
+                if (distance > 260 * 260) continue;
+                float score = distance * (e.Kind == "relay" ? .4f : e.Kind == "prism" ? .7f : 1) + (e.Hp / Math.Max(e.MaxHp, 1)) * 3000;
+                if (score < best) { target = e; best = score; }
+            }
+            return target;
+        }
+
+        private void StopRepair(Enemy e)
+        {
+            e.Channel = 0; e.RepairTargetId = 0; e.AttackPhase = 0; e.Windup = 0;
+            e.Recovery = Math.Max(e.Recovery, 1.8f); e.Cooldown = Math.Max(e.Cooldown, 3.1f);
+            e.BrainState = "恢复"; e.Intent = "修复被打断";
+        }
+
+        private bool UpdateRepair(Enemy e, float dt)
+        {
+            if (e.Channel > 0)
+            {
+                Enemy patient = FindEnemy(e.RepairTargetId);
+                if (e.JamTime > 0 || e.Stun > 0 || e.Recovery > 0 || patient == null || patient.Hp <= 0 || DistanceSquared(e.X, e.Y, patient.X, patient.Y) > 280 * 280)
+                { StopRepair(e); return false; }
+                e.Channel = Math.Max(0, e.Channel - dt); e.VX = e.VY = 0; e.BrainState = "引导"; e.Intent = "修复 " + EnemyName(patient.Kind);
+                if (e.Channel <= 0)
+                {
+                    // A bounded pulse, never resurrection or permanent damage negation.
+                    patient.Hp = Math.Min(patient.MaxHp, patient.Hp + Math.Min(patient.MaxHp * .18f, 35 + Math.Min(Time, 900) * .06f));
+                    e.AttackSerial++;
+                    AddEffect("repair", e.X, e.Y, patient.X, patient.Y, 12, .5f);
+                    e.RepairTargetId = 0; e.Cooldown = 5.2f; e.Recovery = .65f;
+                }
+                return true;
+            }
+            if (e.Cooldown <= 0 && e.Recovery <= 0 && e.JamTime <= 0 && e.BurnTime <= 0 && Phase != "喘息")
+            {
+                Enemy patient = FindRepairTarget(e);
+                if (patient != null && DistanceSquared(e.X, e.Y, patient.X, patient.Y) < 220 * 220)
+                { e.RepairTargetId = patient.Id; e.Channel = e.MaxChannel = 1.6f; e.Intent = "引导修复 · 命中可打断"; return true; }
+            }
+            return false;
+        }
+
+        private void UpdateFacing(Enemy e, float dt)
+        {
+            if (e.AttackPhase == 1 || e.AttackPhase == 2 || e.Stun > 0) return;
+            float angle = (float)Math.Atan2(e.FacingY, e.FacingX), target = (float)Math.Atan2(Y - e.Y, X - e.X);
+            float difference = (float)Math.Atan2(Math.Sin(target - angle), Math.Cos(target - angle));
+            angle += Clamp(difference, -1.65f * dt, 1.65f * dt);
+            e.FacingX = (float)Math.Cos(angle); e.FacingY = (float)Math.Sin(angle);
+        }
+
+        private float ApplyTacticalDamage(Enemy e, float damage, float sourceX, float sourceY)
+        {
+            if (e.Kind == "repairer" && e.Channel > 0 && damage >= 5) StopRepair(e);
+            if (e.Kind == "boss" && e.Recovery > 0) damage *= 1.35f;
+            if (e.Kind == "prism" && e.JamTime <= 0 && e.Stun <= 0 && e.Recovery <= 0)
+            {
+                float dx = sourceX - e.X, dy = sourceY - e.Y, length = (float)Math.Sqrt(dx * dx + dy * dy);
+                float dot = (dx * e.FacingX + dy * e.FacingY) / Math.Max(.01f, length);
+                if (dot > .5f) damage *= .35f;
+                else
+                {
+                    damage *= dot < -.35f ? 1.45f : 1.10f;
+                    if (damage >= 8 && e.AttackPhase == 1)
+                    { e.AttackPhase = 0; e.Windup = 0; e.Recovery = 1.1f; e.Cooldown = 2.7f; CancelEnemyWarning(e.Id); e.Intent = "护面被击穿"; }
+                }
+            }
+            return damage;
+        }
+
+        private bool IsProtected(Enemy e)
+        {
+            if (e.Hp <= 0 || e.GuardId <= 0 || (e.Kind != "shooter" && e.Kind != "relay" && e.Kind != "repairer" && e.Kind != "prism")) return false;
+            Enemy guard = FindEnemy(e.GuardId);
+            if (guard == null || guard.Kind != "tank" || guard.Hp <= 0 || guard.Stun > 0 || guard.JamTime > 0 || guard.Recovery > 0 || guard.GuardId != e.Id) return false;
+            float dx = X - e.X, dy = Y - e.Y, length = (float)Math.Sqrt(dx * dx + dy * dy);
+            float gx = guard.X - e.X, gy = guard.Y - e.Y;
+            float forward = (gx * dx + gy * dy) / Math.Max(1, length);
+            float lateral = Math.Abs(gx * dy - gy * dx) / Math.Max(1, length);
+            // Shield works only while the guard physically occupies the firing lane.
+            return forward > 12 && forward < length && lateral < 44 && gx * gx + gy * gy < 125 * 125;
+        }
+
+        public void CancelEnemyWarning(int id)
+        {
+            for (int i = Hazards.Count - 1; i >= 0; i--) if (Hazards[i].OwnerId == id && Hazards[i].Warning > 0) RemoveFast(Hazards, i);
+        }
+
+        public void DisruptRelay(Enemy relay)
+        {
+            if (relay == null || relay.Kind != "relay" || relay.RelayBroken) return;
+            if (relay.Hp <= 0) relay.RelayBroken = true;
+            relay.Recovery = Math.Max(relay.Recovery, 3.2f);
+            int count = 0;
+            for (int i = 0; i < Enemies.Count; i++)
+            {
+                Enemy e = Enemies[i];
+                if (e.Hp <= 0 || e.Kind == "boss" || (e.RelayId != relay.Id && e.GuardId != relay.Id)) continue;
+                e.RelayId = e.GuardId = 0; e.Shielded = false;
+                e.Channel = 0; e.RepairTargetId = 0;
+                e.Stun = Math.Max(e.Stun, 1.4f); e.Recovery = Math.Max(e.Recovery, 3.2f);
+                e.AttackPhase = 0; e.Windup = 0; e.Cooldown = Math.Max(e.Cooldown, 3.0f);
+                e.VX = e.VY = 0; e.Order = "链路中断"; CancelEnemyWarning(e.Id); count++;
+            }
+            if (count > 0)
+            {
+                AddEffect("disrupt", relay.X, relay.Y, 0, 0, 150, .65f);
+                Say("指挥链中断 · 编队失序，趁机突破", 2.8f); Event("break");
+            }
+            tacticClock = 0;
+        }
+
+        private void UpdateTacticalEnemies(float dt)
+        {
+            for (int i = 0; i < Enemies.Count; i++)
+            {
+                Enemy e = Enemies[i]; if (e.Hp <= 0) continue;
+                e.Life += dt;
+                if (e.AttackPhase == -1) { e.Timer -= dt; if (e.Timer <= 0) { e.AttackPhase = 0; PlanPosition(e); } continue; }
+                UpdateFacing(e, dt);
+                if (e.Kind == "boss")
+                {
+                    e.BossStage = e.Hp < e.MaxHp * .5f ? 2 : 1;
+                    e.BrainState = e.Recovery > 0 ? "恢复" : e.AttackPhase == 1 ? "蓄力" : "追猎";
+                }
+                if (e.Kind == "repairer" && e.Channel > 0 && (e.Stun > 0 || e.JamTime > 0 || e.Recovery > 0)) StopRepair(e);
+                if (e.Stun > 0) { e.Stun = Math.Max(0, e.Stun - dt); e.VX = e.VY = 0; continue; }
+                e.Cooldown -= dt;
+                if (e.Kind == "repairer" && UpdateRepair(e, dt)) continue;
+                if (e.AttackPhase == 1)
+                {
+                    e.VX = e.VY = 0; e.Windup -= dt;
+                    if (e.Windup <= 0) FinishAttack(e);
+                }
+                else if (e.AttackPhase == 2)
+                {
+                    e.X += e.VX * dt; e.Y += e.VY * dt; e.Timer -= dt;
+                    if (e.Timer <= 0) { e.AttackPhase = 0; e.Cooldown = 2.8f; e.Recovery = Math.Max(e.Recovery, .75f); e.Intent = "截击落空 · 暴露"; }
+                }
+                else
+                {
+                    float distance = DistanceSquared(X, Y, e.X, e.Y);
+                    bool special = e.Kind == "runner" || e.Kind == "shooter" || e.Kind == "bomber" || e.Kind == "boss" || e.Kind == "prism";
+                    float range = e.Kind == "runner" ? 450 : e.Kind == "prism" ? 440 : e.Kind == "boss" ? 1100 : 630;
+                    if (special && e.Cooldown <= 0 && e.JamTime <= 0 && e.Recovery <= 0 && distance < range * range && TryBeginAttack(e)) { }
+                    else
+                    {
+                        float dx = e.OrderX - e.X, dy = e.OrderY - e.Y, d = (float)Math.Sqrt(dx * dx + dy * dy);
+                        float speed = e.Speed * (e.JamTime > 0 ? .5f : 1);
+                        float travel = Math.Min(d, speed * dt);
+                        if (e.Recovery > 0 && e.Kind == "runner") travel *= .35f;
+                        if (e.Recovery > 0 && (e.Kind == "boss" || e.Kind == "prism")) travel *= .18f;
+                        e.VX = d > 6 ? dx / Math.Max(d, 1) * travel / dt : 0;
+                        e.VY = d > 6 ? dy / Math.Max(d, 1) * travel / dt : 0;
+                        e.X += e.VX * dt; e.Y += e.VY * dt;
+                    }
+                }
+                e.X = Clamp(e.X, Left + e.R, Right - e.R); e.Y = Clamp(e.Y, Top + e.R, Bottom - e.R);
+                if (DistanceSquared(X, Y, e.X, e.Y) < (e.R + 11) * (e.R + 11)) Hurt(e.Damage);
+                if (Mode == "over") return;
+            }
+        }
+
+        private bool TryBeginAttack(Enemy e)
+        {
+            if (Phase == "喘息" && e.Kind != "boss") return false;
+            Enemy leader = FindEnemy(e.RelayId);
+            if (leader != null)
+            {
+                if ((e.Kind == "shooter" || e.Kind == "bomber") && leader.BrainState != "压制") return false;
+                if ((e.Kind == "runner" || e.Kind == "prism") && leader.BrainState != "截击") return false;
+            }
+            if (Time < nextSpecial) return false;
+            int active = 0;
+            bool bossWaiting = false;
+            for (int i = 0; i < Enemies.Count; i++)
+            {
+                Enemy other = Enemies[i]; if (other.Hp <= 0) continue;
+                if (other.AttackPhase == 1 || other.AttackPhase == 2) active++;
+                if (other.Kind == "boss" && other.AttackPhase == 0 && other.Cooldown <= 0) bossWaiting = true;
+            }
+            if (active >= SpecialAttackLimit) return false;
+            if (e.Kind != "boss" && bossWaiting && active >= SpecialAttackLimit - 1) return false;
+            bool area = e.Kind == "bomber" || e.Kind == "boss" || e.Kind == "prism";
+            if (area && Hazards.Count >= 5) return false;
+            float tx = DecoyTime > 0 ? DecoyX : X, ty = DecoyTime > 0 ? DecoyY : Y;
+            float lead = e.Kind == "runner" ? 1.10f : e.Kind == "shooter" ? 1.70f : e.Kind == "prism" ? .80f : e.Kind == "boss" ? 1.10f : 1.20f;
+            if (e.Kind == "shooter" && DecoyTime <= 0)
+            {
+                // Solve an intercept using the observed velocity and a fixed 0.9s firing tell.
+                float px = X + PlayerVX * .9f - e.X, py = Y + PlayerVY * .9f - e.Y;
+                float a = PlayerVX * PlayerVX + PlayerVY * PlayerVY - 255 * 255;
+                float b = 2 * (px * PlayerVX + py * PlayerVY), c = px * px + py * py;
+                float discriminant = b * b - 4 * a * c;
+                if (discriminant >= 0 && Math.Abs(a) > .01f)
+                {
+                    float t1 = (-b - (float)Math.Sqrt(discriminant)) / (2 * a), t2 = (-b + (float)Math.Sqrt(discriminant)) / (2 * a);
+                    float travel = t1 > 0 ? t1 : t2 > 0 ? t2 : .8f;
+                    lead = Math.Min(2.6f, .9f + travel);
+                }
+            }
+            if (e.RelayId > 0 && e.Kind != "shooter") lead += .05f;
+            if (e.Kind == "runner" && ObservedDashAge > .20f && ObservedDashAge < 1.05f) lead = .9f;
+            if (e.Kind == "boss" && e.AttackSerial % 3 == 2) lead = .35f;
+            PredictPosition(lead, out tx, out ty);
+            float radius = e.Kind == "boss" ? 96 : 64;
+            tx = Clamp(tx, Left + 18, Right - 18); ty = Clamp(ty, Top + 18, Bottom - 18);
+            float windup = e.Kind == "runner" ? .78f : e.Kind == "shooter" ? .9f : e.Kind == "prism" ? .85f : e.Kind == "boss" ? 1.15f : 1.25f;
+            List<Hazard> proposed = area ? AttackHazards(e, tx, ty, windup) : null;
+            if (!LeavesEscape(e, tx, ty, area ? radius : 22, proposed)) { e.Cooldown = .28f; return false; }
+            e.AttackPhase = 1; e.TargetX = tx; e.TargetY = ty;
+            e.Windup = windup;
+            e.Intent = e.Kind == "boss" ? (e.AttackSerial % 3 == 0 ? "审判圆区" : e.AttackSerial % 3 == 1 ? "棱线切割" : "回声环震") : e.Kind == "prism" ? "护面突刺 · 侧背可打断" : e.Kind == "runner" && ObservedDashAge < 1.05f ? "冲刺后接力" : "锁定 · 不再追踪";
+            if (e.Kind == "boss") e.BrainState = "蓄力";
+            e.VX = e.VY = 0;
+            // Stagger the starts: no frame can suddenly open every attack lane.
+            nextSpecial = Time + .30f;
+            if (area)
+            {
+                for (int i = 0; i < proposed.Count && Hazards.Count < HazardLimit; i++) Hazards.Add(proposed[i]);
+            }
+            Event("warning"); return true;
+        }
+
+        private List<Hazard> AttackHazards(Enemy e, float tx, float ty, float warning)
+        {
+            List<Hazard> result = new List<Hazard>(2);
+            Hazard h = new Hazard { OwnerId = e.Id, X = tx, Y = ty, R = e.Kind == "boss" ? 96 : 64,
+                Warning = warning, Life = e.Kind == "boss" ? 1.0f : 2.0f, Damage = e.Damage * .80f };
+            if (e.Kind == "prism")
+            {
+                h.Shape = "line"; h.X = e.X; h.Y = e.Y;
+                h.X2 = Clamp(e.X + e.FacingX * 420, Left + 18, Right - 18);
+                h.Y2 = Clamp(e.Y + e.FacingY * 420, Top + 18, Bottom - 18);
+                h.R = 28; h.Life = .28f;
+            }
+            else if (e.Kind == "boss" && e.AttackSerial % 3 == 1)
+            {
+                float dx = PlayerVX, dy = PlayerVY, distance = (float)Math.Sqrt(dx * dx + dy * dy);
+                if (distance < 30) { dx = tx - e.X; dy = ty - e.Y; distance = (float)Math.Sqrt(dx * dx + dy * dy); }
+                dx /= Math.Max(1, distance); dy /= Math.Max(1, distance);
+                if (Math.Abs(dx) + Math.Abs(dy) < .01f) dx = 1;
+                h.Shape = "line"; h.R = e.BossStage >= 2 ? 24 : 28; h.Life = .8f;
+                h.X = Clamp(tx - dy * 220, Left + 18, Right - 18); h.Y = Clamp(ty + dx * 220, Top + 18, Bottom - 18);
+                h.X2 = Clamp(tx + dy * 220, Left + 18, Right - 18); h.Y2 = Clamp(ty - dx * 220, Top + 18, Bottom - 18);
+                if (e.BossStage >= 2)
+                {
+                    Hazard second = new Hazard { OwnerId = e.Id, Shape = "line", Warning = warning, Life = h.Life, Damage = h.Damage, R = 24,
+                        X = Clamp(h.X + dx * 130, Left + 18, Right - 18), Y = Clamp(h.Y + dy * 130, Top + 18, Bottom - 18),
+                        X2 = Clamp(h.X2 + dx * 130, Left + 18, Right - 18), Y2 = Clamp(h.Y2 + dy * 130, Top + 18, Bottom - 18) };
+                    result.Add(second);
+                }
+            }
+            else if (e.Kind == "boss" && e.AttackSerial % 3 == 2)
+            { h.Shape = "ring"; h.R = 180; h.InnerR = 100; h.Life = .9f; }
+            result.Add(h); return result;
+        }
+
+        public static bool HazardContains(Hazard h, float px, float py, float padding)
+        {
+            if (h.Shape == "line")
+                return WorldSegmentDistanceSquared(px, py, h.X, h.Y, h.X2, h.Y2) < (h.R + padding) * (h.R + padding);
+            float distance = DistanceSquared(px, py, h.X, h.Y);
+            if (h.Shape == "ring") return distance < (h.R + padding) * (h.R + padding) && distance > Math.Max(0, h.InnerR - padding) * Math.Max(0, h.InnerR - padding);
+            return distance < (h.R + padding) * (h.R + padding);
+        }
+
+        private bool LeavesEscape(Enemy attacker, float tx, float ty, float radius, List<Hazard> proposed)
+        {
+            // Reserve at least one walkable direction. A warning is not yet a blocking floor:
+            // allow crossing it before detonation, but always require a safe destination.
+            // This is a bounded eight-sector fairness check, not navigation over the whole arena.
+            bool proposedArea = proposed != null;
+            float proposedWarning = proposedArea && proposed.Count > 0 ? proposed[0].Warning : 0;
+            // Staying inside a ring or taking a short step is also a valid response.
+            for (int route = 0; route < 3; route++) for (int sector = 0; sector < (route == 0 ? 1 : 8); sector++)
+            {
+                float travel = route == 0 ? 0 : route == 1 ? 80 : 175;
+                float angle = sector * (float)Math.PI / 4;
+                float ex = X + (float)Math.Cos(angle) * travel, ey = Y + (float)Math.Sin(angle) * travel;
+                if (ex < Left + 18 || ex > Right - 18 || ey < Top + 18 || ey > Bottom - 18) continue;
+                bool safe = true;
+                for (int sample = 1; sample <= 2 && safe; sample++)
+                {
+                    float px = X + (ex - X) * sample / 2, py = Y + (ey - Y) * sample / 2;
+                    float arrive = travel * sample / 2 / (220 + Rank("speed") * 16);
+                    if (!proposedArea && AttackCovers(attacker, tx, ty, radius, px, py)) { safe = false; break; }
+                    if (proposedArea && (sample == 2 || proposedWarning <= arrive))
+                        for (int j = 0; j < proposed.Count && safe; j++) if (HazardContains(proposed[j], px, py, 18)) safe = false;
+                    for (int j = 0; j < Hazards.Count && safe; j++)
+                        if ((sample == 2 || Hazards[j].Warning <= arrive) && HazardContains(Hazards[j], px, py, 18)) safe = false;
+                    for (int j = 0; j < Enemies.Count && safe; j++)
+                    {
+                        Enemy e = Enemies[j];
+                        if (e.Hp <= 0 || e.AttackPhase != 1 || e.Kind == "boss" || e.Kind == "bomber" || e.Kind == "prism") continue;
+                        if (AttackCovers(e, e.TargetX, e.TargetY, 24, px, py)) safe = false;
+                    }
+                }
+                if (safe) return true;
+            }
+            return false;
+        }
+
+        private bool AttackCovers(Enemy e, float tx, float ty, float radius, float px, float py)
+        {
+            if (e.Kind == "bomber" || e.Kind == "boss") return DistanceSquared(px, py, tx, ty) < (radius + 18) * (radius + 18);
+            float dx = tx - e.X, dy = ty - e.Y, d2 = dx * dx + dy * dy;
+            float t = Clamp(((px - e.X) * dx + (py - e.Y) * dy) / Math.Max(1, d2), 0, 1.4f);
+            return DistanceSquared(px, py, e.X + dx * t, e.Y + dy * t) < (radius + 15) * (radius + 15);
+        }
+
+        private void FinishAttack(Enemy e)
+        {
+            e.AttackSerial++;
+            if (e.Kind == "runner")
+            {
+                float dx = e.TargetX - e.X, dy = e.TargetY - e.Y, d = (float)Math.Sqrt(dx * dx + dy * dy);
+                e.VX = dx / Math.Max(1, d) * 520; e.VY = dy / Math.Max(1, d) * 520;
+                e.AttackPhase = 2; e.Timer = Clamp(d / 520, .35f, .86f);
+            }
+            else if (e.Kind == "shooter")
+            {
+                float angle = (float)Math.Atan2(e.TargetY - e.Y, e.TargetX - e.X);
+                int count = Time > 180 ? 3 : 1;
+                for (int j = 0; j < count; j++) AddShot(e.X, e.Y, angle + (j - (count - 1) / 2f) * .18f, 255, e.Damage, true, 0, "enemy");
+                e.AttackPhase = 0; e.Cooldown = e.RelayId > 0 ? 2.4f : 2.9f; e.Recovery = .32f;
+            }
+            else
+            {
+                bool resolvedHazard = false;
+                for (int i = 0; i < Hazards.Count; i++)
+                {
+                    Hazard h = Hazards[i]; if (h.OwnerId != e.Id || h.Warning <= 0) continue;
+                    resolvedHazard = true;
+                    h.Warning = 0;
+                    if (h.Shape == "circle") AddEffect("aoeBlast", h.X, h.Y, 0, 0, h.R, .42f);
+                    if (HazardContains(h, X, Y, 10)) Hurt(e.Damage * 1.25f);
+                }
+                // Public scenario fixtures can supply a legacy circular windup without a Hazard.
+                if (!resolvedHazard && (e.Kind == "bomber" || (e.Kind == "boss" && (e.AttackSerial - 1) % 3 == 0)))
+                {
+                    float radius = e.Kind == "boss" ? 96 : 64;
+                    AddEffect("aoeBlast", e.TargetX, e.TargetY, 0, 0, radius, .42f);
+                    if (DistanceSquared(X, Y, e.TargetX, e.TargetY) < (radius + 10) * (radius + 10)) Hurt(e.Damage * 1.25f);
+                }
+                if (e.Kind == "boss")
+                {
+                    // Every distinct attack ends in a visible punish window; no simultaneous bullet ring.
+                    e.Recovery = e.BossStage >= 2 ? 1.45f : 1.8f; e.BrainState = "恢复"; e.Intent = "核心暴露 · 受到伤害 +35%";
+                }
+                if (e.Kind == "prism") { e.Recovery = 1.25f; e.Intent = "护甲过热 · 反击窗口"; }
+                e.AttackPhase = 0; e.Cooldown = e.Kind == "boss" ? (e.BossStage >= 2 ? 2.55f : 3.0f) : e.Kind == "prism" ? 3.5f : 3.8f;
+            }
+        }
+
+        private void UpdateHazards(float dt)
+        {
+            for (int i = Hazards.Count - 1; i >= 0; i--)
+            {
+                Hazard h = Hazards[i];
+                if (h.Warning > 0)
+                {
+                    Enemy owner = FindEnemy(h.OwnerId);
+                    if (owner == null || owner.Hp <= 0 || owner.AttackPhase != 1) { RemoveFast(Hazards, i); continue; }
+                    h.Warning = Math.Max(.001f, owner.Windup); continue;
+                }
+                h.Life -= dt;
+                if (h.Life <= 0) { RemoveFast(Hazards, i); continue; }
+                if (HazardContains(h, X, Y, 8)) Hurt(h.Damage);
+                if (Mode == "over") return;
+            }
+        }
+    }
+}
+
+using System;
+using System.Collections.Generic;
+
+namespace NeonEmber
+{
+    public partial class Enemy
+    {
+        public float BurnTime, BurnDps, JamTime, ResonanceTime;
+        public string LastWorldWeapon = "";
+        public int WorldDashHit = -1;
+    }
+
+    // Narrative and card metadata are shared by the native UI and headless tests.
+    public static class Lore
+    {
+        public const int StoryCount = 4;
+        public static readonly string[] UpgradeIds = {
+            "ember_brand", "ember_breach", "ember_cascade",
+            "echo_decoy", "echo_jammer", "echo_trace",
+            "forge_ward", "forge_breaker", "forge_intercept"
+        };
+        public static string SchoolOf(string id)
+        {
+            if (id == "bolt" || id.StartsWith("ember_", StringComparison.Ordinal)) return "ember";
+            if (id == "arc" || id.StartsWith("echo_", StringComparison.Ordinal)) return "echo";
+            if (id == "blade" || id.StartsWith("forge_", StringComparison.Ordinal)) return "forge";
+            return "";
+        }
+        public static bool IsSchoolUpgrade(string id)
+        {
+            for (int i = 0; i < UpgradeIds.Length; i++) if (UpgradeIds[i] == id) return true;
+            return false;
+        }
+        public static string SchoolName(string school)
+        {
+            return school == "ember" ? "余烬公社" : school == "echo" ? "回声潜网" : school == "forge" ? "铸城工坊" : "信使改装";
+        }
+        public static string SchoolSummary(string school)
+        {
+            return school == "ember" ? "热写记忆：点燃、惩罚破绽、传火。6 点觉醒「不灭余烬」。" :
+                school == "echo" ? "伪造信号：残像、干扰指挥、异源共鸣。6 点觉醒「离线人格」。" :
+                school == "forge" ? "夺回防线：充能护盾、冲刺破阵、拦截弹幕。6 点觉醒「巡夜城墙」。" : "混搭三系不会锁定其他路线。";
+        }
+        public static string CapstoneName(string school)
+        {
+            return school == "ember" ? "不灭余烬" : school == "echo" ? "离线人格" : "巡夜城墙";
+        }
+        public static string CapstoneDescription(string school)
+        {
+            return school == "ember" ? "武器点燃持续 4 秒；燃烧敌人死亡时，向 100 范围内至多 6 个目标造成 1.5 倍燃烧秒伤。需要热写烙印供火。" :
+                school == "echo" ? "冲刺至少生成 1.2 秒残像；残像消散时在 130 范围内干扰敌人 0.9 秒，打断普通敌人蓄力。" :
+                "护盾上限 +18；破盾时抵消该次溢出伤害，清除 160 范围内敌弹并无敌 0.8 秒，每 8 秒最多一次。";
+        }
+        public static string StoryTitle(int chapter)
+        {
+            switch (Math.Max(0, Math.Min(StoryCount - 1, chapter)))
+            {
+                case 0: return "00 / 一份不该存在的委托";
+                case 1: return "01 / 死者的签名";
+                case 2: return "02 / 第七次黎明";
+                default: return "03 / 没有终点的投递";
+            }
+        }
+        public static string StoryBody(int chapter)
+        {
+            switch (Math.Max(0, Math.Min(StoryCount - 1, chapter)))
+            {
+                case 0: return "暮环城用「总档案」保存每个人的记忆。灾后居民相信：只要档案仍在，死者就没有真正离去。\n\n你是无名信使「零」。一份没有寄件人的委托，把一段未经校订的记忆写进你的脊柱：『天亮之前，把我送出城。不要相信你的履历。』收件地址，竟然是你的住址。\n\n总档案随即将你列为失真源。余烬公社提供焚毁追踪码的热写器，回声潜网替你伪造身份，铸城工坊交出旧巡夜装甲。你需要在一次次清剿之间回收监察者的密钥，查明谁在投递这段记忆。";
+                case 1: return "第一枚密钥解开一份已注销的死亡证明。姓名被抹去，身份签名却与你完全一致。落款日期，距今七年。\n\n通讯中的修补匠「弥」第一次沉默。她最终只说：『你不是第一位零。你的每一次出发，城里都会有人想起不该想起的事。』\n\n监察者并非偶然追来。指挥节点正在交换你的行动轨迹，盾卫为节点遮挡火力，截击者绕到前方。总档案害怕的不是一具身体，而是身体里那段未经它许可的过去。";
+                case 2: return "第二枚密钥恢复了你参与签署的「黎明校订协议」。七年前能源危机中，总档案被授予删除痛苦记忆的权力；后来，反对配给的声音也被划进了同一类别。\n\n你曾是协议的维护者。发现城外求援记录被反复删除后，你把证词拆成片段，藏进自己的多个备份。每次封锁，系统都会重置你的履历；每次投递，一段证词便会逃出它的索引。\n\n余烬公社想让证词无法被回收，回声潜网想保住尚未暴露的人名，铸城工坊想让居民拥有关停审查的权力。三套改装不是信仰测试，而是三种把真相送出去的方法。";
+                default: return "第三枚密钥终于打开原始委托。寄件人正是七年前的你。收件地址不是一栋房子，而是所有离线收音机共有的旧广播标识：『家』。\n\n你没有删除总档案。里面仍住着数以万计等待被唤醒的亲人。你和弥选择公开校订日志，把是否记起过去的选择还给城里的人。第一批接收者回传了同一句话：『已收到。继续。』\n\n清剿没有结束。每击破一位后续监察者，新的频段便加入转发；你坚持得越久，越多被隔离的街区能够接收证词。这不是另一个被承诺的结局，而是一条仍需要有人守住的广播线路。";
+            }
+        }
+        public const string CombatManual = "总档案通过指挥节点组织清剿。连线说明节点与随从的协同关系；击破或干扰节点会打断随从行动。\n盾卫保护前方盟友，尝试绕背或冲刺破盾。截击者预测移动方向，冲锋前锁定落点；反向变速可以躲开。\n火力手与封路者会瞄准预测位置，攻击有预告且锁定后不跟随玩家。冲刺用于穿越火线，也能触发改装。\n余烬、回声、铸城各有 3 项改装，每项最多 3 级。同系累计 6 点自动觉醒；两系各 2 点产生协同。武器等级不计入系别点数。\n暂停后按 J 阅读已解锁档案。剧情由实际击破监察者解锁，时间到达只会触发敌人登场。";
+    }
+
+    public partial class Game
+    {
+        public int CompletedBosses, StoryChapter;
+        public string LastStoryTitle = "";
+        public float Ward, DecoyX, DecoyY, DecoyTime;
+        private float wardWait, interceptClock, wallCooldown, lastWorldX, lastWorldY;
+        private int worldDashSerial;
+
+        public int SchoolPoints(string school)
+        {
+            int total = 0;
+            for (int i = 0; i < Lore.UpgradeIds.Length; i++)
+                if (Lore.SchoolOf(Lore.UpgradeIds[i]) == school) total += Rank(Lore.UpgradeIds[i]);
+            return total;
+        }
+        public bool HasSchoolCapstone(string school) { return SchoolPoints(school) >= 6; }
+        public bool HasWorldSynergy(string a, string b) { return a != b && SchoolPoints(a) >= 2 && SchoolPoints(b) >= 2; }
+        public float MaxWard
+        {
+            get { return 14 * Rank("forge_ward") + (HasSchoolCapstone("forge") ? 18 : 0) + (HasWorldSynergy("echo", "forge") ? 10 : 0); }
+        }
+        public string SchoolProgressText()
+        {
+            return "余烬 " + SchoolPoints("ember") + "/6  ·  回声 " + SchoolPoints("echo") + "/6  ·  铸城 " + SchoolPoints("forge") + "/6  （6 点觉醒，上限 9）";
+        }
+        public string SynergyText()
+        {
+            List<string> active = new List<string>();
+            if (HasWorldSynergy("ember", "echo")) active.Add("失真热写：干扰中的敌人燃烧伤害 +50%");
+            if (HasWorldSynergy("ember", "forge")) active.Add("熔铸回路：击杀燃烧敌人恢复 3 点护盾");
+            if (HasWorldSynergy("echo", "forge")) active.Add("幽灵护航：护盾上限 +10，残像存在时无延迟回充");
+            return active.Count == 0 ? "混搭协同：任意两系各投入 2 点后激活。" : string.Join("\n", active.ToArray());
+        }
+
+        private void ResetWorld()
+        {
+            CompletedBosses = StoryChapter = 0; LastStoryTitle = Lore.StoryTitle(0);
+            Ward = wardWait = interceptClock = wallCooldown = DecoyTime = 0;
+            DecoyX = lastWorldX = X; DecoyY = lastWorldY = Y; worldDashSerial = 0;
+            string starter = Rank("arc") > 0 ? "echo_decoy" : Rank("blade") > 0 ? "forge_ward" : "ember_brand";
+            Ranks[starter] = 1;
+            if (starter == "forge_ward") Ward = 14;
+        }
+
+        private void UpdateWorld(float dt, bool dashedNow)
+        {
+            wardWait = Math.Max(0, wardWait - dt);
+            wallCooldown = Math.Max(0, wallCooldown - dt);
+            interceptClock = Math.Max(0, interceptClock - dt);
+            float previousDecoyTime = DecoyTime;
+            DecoyTime = Math.Max(0, DecoyTime - dt);
+            bool hotEcho = HasWorldSynergy("ember", "echo");
+            for (int i = 0; i < Enemies.Count; i++)
+            {
+                Enemy e = Enemies[i]; if (e.Hp <= 0) continue;
+                e.JamTime = Math.Max(0, e.JamTime - dt);
+                e.ResonanceTime = Math.Max(0, e.ResonanceTime - dt);
+                if (e.BurnTime > 0)
+                {
+                    float tick = Math.Min(dt, e.BurnTime);
+                    float multiplier = hotEcho && e.JamTime > 0 ? 1.5f : 1;
+                    e.Hp -= e.BurnDps * tick * multiplier;
+                    e.BurnTime = Math.Max(0, e.BurnTime - dt);
+                    // Keep a tiny burn marker until collection if this tick was lethal.
+                    if (e.Hp <= 0) e.BurnTime = Math.Max(.001f, e.BurnTime);
+                }
+            }
+            if (previousDecoyTime > 0 && DecoyTime <= 0 && HasSchoolCapstone("echo"))
+                WorldJamPulse(DecoyX, DecoyY, 130, .9f);
+            if (dashedNow)
+            {
+                worldDashSerial++;
+                int decoy = Rank("echo_decoy");
+                if (decoy > 0 || HasSchoolCapstone("echo"))
+                {
+                    DecoyX = lastWorldX; DecoyY = lastWorldY;
+                    DecoyTime = decoy > 0 ? .9f + .4f * decoy : 1.2f;
+                    AddEffect("echoDecoy", DecoyX, DecoyY, 0, 0, 24, DecoyTime);
+                }
+                int jammer = Rank("echo_jammer");
+                if (jammer > 0) WorldJamPulse(X, Y, 105 + jammer * 15, .55f + jammer * .2f);
+            }
+            int breaker = Rank("forge_breaker");
+            if (breaker > 0 && (dashedNow || DashTime > 0))
+            {
+                for (int i = 0; i < Enemies.Count; i++)
+                {
+                    Enemy e = Enemies[i]; if (e.Hp <= 0 || e.AttackPhase == -1 || e.WorldDashHit == worldDashSerial) continue;
+                    if (WorldSegmentDistanceSquared(e.X, e.Y, lastWorldX, lastWorldY, X, Y) > (42 + e.R) * (42 + e.R)) continue;
+                    e.WorldDashHit = worldDashSerial;
+                    JamWorldEnemy(e, .7f + .15f * breaker);
+                    DamageEnemy(e, (12 + 12 * breaker) * PowerMultiplier, "forge");
+                    if (e.Kind != "boss")
+                    {
+                        float dx = e.X - X, dy = e.Y - Y;
+                        float distance = (float)Math.Sqrt(dx * dx + dy * dy);
+                        if (distance < 1) { dx = dashX; dy = dashY; distance = 1; }
+                        e.X = Clamp(e.X + dx / distance * 48, Left + e.R, Right - e.R);
+                        e.Y = Clamp(e.Y + dy / distance * 48, Top + e.R, Bottom - e.R);
+                    }
+                    AddEffect("forgeBreak", e.X, e.Y, 0, 0, 40, .3f);
+                }
+            }
+            if (Ward < MaxWard && (wardWait <= 0 || (DecoyTime > 0 && HasWorldSynergy("echo", "forge"))))
+                Ward = Math.Min(MaxWard, Ward + 6 * dt);
+            int intercept = Rank("forge_intercept");
+            if (intercept > 0 && interceptClock <= 0)
+            {
+                int nearest = -1; float distance = (70 + 10 * intercept) * (70 + 10 * intercept);
+                for (int i = 0; i < Shots.Count; i++)
+                {
+                    if (!Shots[i].Hostile) continue;
+                    float d = DistanceSquared(X, Y, Shots[i].X, Shots[i].Y);
+                    if (d < distance) { distance = d; nearest = i; }
+                }
+                if (nearest >= 0)
+                {
+                    Shot shot = Shots[nearest]; AddEffect("intercept", X, Y, shot.X, shot.Y, 8, .2f);
+                    RemoveFast(Shots, nearest); interceptClock = Math.Max(.45f, 1.4f - .25f * intercept); Event("arc");
+                }
+            }
+            lastWorldX = X; lastWorldY = Y;
+        }
+
+        private static float WorldSegmentDistanceSquared(float px, float py, float ax, float ay, float bx, float by)
+        {
+            float dx = bx - ax, dy = by - ay, denom = dx * dx + dy * dy;
+            float t = denom <= .001f ? 0 : Clamp(((px - ax) * dx + (py - ay) * dy) / denom, 0, 1);
+            return DistanceSquared(px, py, ax + t * dx, ay + t * dy);
+        }
+        private void WorldJamPulse(float x, float y, float radius, float duration)
+        {
+            AddEffect("jamPulse", x, y, 0, 0, radius, .38f);
+            for (int i = 0; i < Enemies.Count; i++)
+            {
+                Enemy e = Enemies[i];
+                if (e.Hp > 0 && e.AttackPhase != -1 && DistanceSquared(x, y, e.X, e.Y) <= radius * radius)
+                    JamWorldEnemy(e, duration);
+            }
+        }
+        private void JamWorldEnemy(Enemy e, float duration)
+        {
+            if (e.Kind == "boss") { e.JamTime = Math.Max(e.JamTime, .25f); return; }
+            e.JamTime = Math.Max(e.JamTime, duration);
+            if (e.Kind == "relay") DisruptRelay(e);
+            if (e.AttackPhase == 1) { e.AttackPhase = 0; e.Windup = 0; CancelEnemyWarning(e.Id); }
+            e.Cooldown = Math.Max(e.Cooldown, duration + .35f);
+        }
+
+        private float ApplyWorldDamage(Enemy e, float damage, string weapon)
+        {
+            int breach = Rank("ember_breach");
+            if (breach > 0 && (e.AttackPhase == 1 || e.Recovery > 0 || e.JamTime > 0)) damage *= 1 + .18f * breach;
+            bool weaponHit = weapon == "bolt" || weapon == "nova" || weapon == "arc" || weapon == "blade";
+            if (!weaponHit) return damage;
+            int brand = Rank("ember_brand");
+            if (brand > 0)
+            {
+                e.BurnTime = HasSchoolCapstone("ember") ? 4 : 2;
+                e.BurnDps = Math.Max(e.BurnDps, (4 + 3 * brand) * PowerMultiplier);
+            }
+            string category = weapon == "nova" ? "bolt" : weapon;
+            int trace = Rank("echo_trace");
+            if (trace > 0 && e.ResonanceTime > 0 && e.LastWorldWeapon != "" && e.LastWorldWeapon != category)
+            {
+                damage *= 1 + .14f * trace;
+                AddEffect("resonance", e.X, e.Y, 0, 0, e.R + 7, .18f);
+            }
+            e.ResonanceTime = 3; e.LastWorldWeapon = category;
+            return damage;
+        }
+
+        private float AbsorbWorldDamage(float damage)
+        {
+            wardWait = 4;
+            float absorbed = Math.Min(Ward, Math.Max(0, damage));
+            float before = Ward; Ward -= absorbed; damage -= absorbed;
+            if (absorbed > 0) AddEffect("wardHit", X, Y, 0, 0, 30, .25f);
+            if (before > 0 && Ward <= 0 && HasSchoolCapstone("forge") && wallCooldown <= 0)
+            {
+                wallCooldown = 8; Invulnerable = Math.Max(Invulnerable, .8f);
+                for (int i = Shots.Count - 1; i >= 0; i--)
+                    if (Shots[i].Hostile && DistanceSquared(X, Y, Shots[i].X, Shots[i].Y) < 160 * 160)
+                    {
+                        // Hurt can run inside UpdateShots: defer structural removal to that loop.
+                        Shots[i].Life = 0; Shots[i].Damage = 0;
+                    }
+                AddEffect("wardBurst", X, Y, 0, 0, 160, .45f);
+                // The breaking hit consumes the ward; the awakened wall absorbs its overflow.
+                damage = 0;
+            }
+            return Math.Max(0, damage);
+        }
+
+        private void OnWorldEnemyDeath(Enemy e)
+        {
+            if (e.BurnTime > 0)
+            {
+                if (HasWorldSynergy("ember", "forge")) Ward = Math.Min(MaxWard, Ward + 3);
+                int spread = Rank("ember_cascade"), spreadCount = 0, blastCount = 0;
+                bool awakened = HasSchoolCapstone("ember");
+                for (int i = 0; i < Enemies.Count; i++)
+                {
+                    Enemy other = Enemies[i];
+                    if (other == e || other.Hp <= 0 || DistanceSquared(e.X, e.Y, other.X, other.Y) > 100 * 100) continue;
+                    if (spread > 0 && spreadCount < spread + 1)
+                    {
+                        other.BurnTime = Math.Max(other.BurnTime, 2);
+                        other.BurnDps = Math.Max(other.BurnDps, e.BurnDps); spreadCount++;
+                    }
+                    if (awakened && blastCount < 6) { other.Hp -= e.BurnDps * 1.5f; blastCount++; }
+                }
+                if (spreadCount > 0 || blastCount > 0) AddEffect("emberBurst", e.X, e.Y, 0, 0, 100, .3f);
+            }
+            if (e.Kind == "boss")
+            {
+                CompletedBosses++;
+                int chapter = Math.Min(Lore.StoryCount - 1, CompletedBosses);
+                if (chapter > StoryChapter)
+                {
+                    StoryChapter = chapter; LastStoryTitle = Lore.StoryTitle(chapter);
+                    Say("档案解封 · " + LastStoryTitle + " · J 阅读", 6); Event("story");
+                }
+            }
+        }
+
+        private void OnWorldUpgrade(string id)
+        {
+            if (!Lore.IsSchoolUpgrade(id)) return;
+            if (id == "forge_ward") Ward = Math.Min(MaxWard, Ward + 14);
+            string school = Lore.SchoolOf(id);
+            if (SchoolPoints(school) == 6)
+            {
+                if (school == "forge") Ward = Math.Min(MaxWard, Ward + 18);
+                Say("体系觉醒 · " + (school == "ember" ? "不灭余烬" : school == "echo" ? "离线人格" : "巡夜城墙"), 4);
+                AddEffect("evolve", X, Y, 0, 0, 130, .8f); Event("evolve");
+            }
+        }
+
+        private Upgrade MakeWorldUpgrade(string id)
+        {
+            return DescribeWorldUpgrade(id, Rank(id) + 1);
+        }
+        public Upgrade WorldUpgradeInfo(string id)
+        {
+            return DescribeWorldUpgrade(id, Math.Max(1, Rank(id)));
+        }
+        private Upgrade DescribeWorldUpgrade(string id, int next)
+        {
+            if (!Lore.IsSchoolUpgrade(id)) return null;
+            Upgrade u = new Upgrade(); u.Id = id; u.School = Lore.SchoolOf(id); u.Tag = Lore.SchoolName(u.School) + " · " + next + "/3";
+            switch (id)
+            {
+                case "ember_brand":
+                    u.Name = "热写烙印 " + next; u.Description = "武器命中点燃目标 2 秒，觉醒后 4 秒；每秒 " + (4 + 3 * next) + " 基础伤害，受全局火力加成。重复命中刷新时间。"; u.Flavor = "他们删去名字，我们把名字烧进金属。"; break;
+                case "ember_breach":
+                    u.Name = "破绽焚解 " + next; u.Description = "对正在蓄力、恢复或被干扰的敌人，直接伤害增加 " + (18 * next) + "%；追击刚刚打空技能的敌人。"; u.Flavor = "最坚固的校订，也有落笔前的一瞬空白。"; break;
+                case "ember_cascade":
+                    u.Name = "传火证词 " + next; u.Description = "燃烧中的敌人死亡时，将 2 秒燃烧传播给 100 范围内至多 " + (next + 1) + " 个敌人。需热写烙印提供火种。"; u.Flavor = "证词只要还有一个人记得，就没有消失。"; break;
+                case "echo_decoy":
+                    u.Name = "离线替身 " + next; u.Description = "冲刺起点留下 " + (.9f + .4f * next).ToString("0.0", System.Globalization.CultureInfo.InvariantCulture) + " 秒残像，诱导敌人新一轮瞄准；已锁定的攻击不会改向。"; u.Flavor = "一张被注销的身份，仍可以敲开一扇门。"; break;
+                case "echo_jammer":
+                    u.Name = "静默频段 " + next; u.Description = "冲刺干扰周围 " + (105 + 15 * next) + " 范围，打断普通敌人蓄力，断开节点协同，持续 " + (.55f + .2f * next).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) + " 秒。Boss 仅延迟后续行动。"; u.Flavor = "把命令与执行之间的那条线剪断。"; break;
+                case "echo_trace":
+                    u.Name = "异源共鸣 " + next; u.Description = "3 秒内用另一种武器命中同一敌人，后一次命中伤害增加 " + (14 * next) + "%；适合两种及以上武器混搭。"; u.Flavor = "一段回忆可能被改写，两份矛盾的回忆会留下回声。"; break;
+                case "forge_ward":
+                    u.Name = "巡夜护层 " + next; u.Description = "基础护盾容量增至 " + (14 * next) + "，另计觉醒与联动；本次补充 14 点。4 秒未受击后每秒回充 6 点。"; u.Flavor = "城墙的职责不是困住居民。"; break;
+                case "forge_breaker":
+                    u.Name = "破阵撞角 " + next; u.Description = "冲刺沿途近身敌人受到 " + (12 + 12 * next) + " 基础伤害，普通敌人被击退、干扰；盾卫护面与指挥协同会被拆开。每敌人每次冲刺只触发一次。"; u.Flavor = "我们建过这座城，也知道从哪里撬开它。"; break;
+                default:
+                    u.Name = "拾荒拦截器 " + next; u.Description = "每 " + Math.Max(.45f, 1.4f - .25f * next).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) + " 秒拦截一枚 " + (70 + 10 * next) + " 范围内的敌弹，优先最近目标。"; u.Flavor = "废弃巡逻机的最后一条命令：保护街上的人。"; break;
+            }
+            return u;
+        }
+    }
+}
+
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
+using System.IO;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Windows.Forms;
+
+namespace NeonEmber {
+public static partial class Program {
+ static readonly Col BG=new Col(8,13,22,255),Panel=new Col(15,24,36,255),Line=new Col(41,61,76,255),White=new Col(231,245,246,255),Muted=new Col(126,149,163,255),Cyan=new Col(94,235,220,255),Gold=new Col(255,198,103,255),Pink=new Col(255,103,127,255),Violet=new Col(180,151,255,255);
+ static readonly string[] WeaponNames={"裂隙针","链式信标","轨道棱"};
+ static readonly string[] WeaponSub={"焚档 / 灼烧 · 击破","回声 / 诱饵 · 断链","铸卫 / 护盾 · 突围"};
+ static readonly string[] WeaponDesc={"携带裂隙针与烙印技术。\n精准打击，趁敌人蓄力破阵。","携带链式信标与诱饵技术。\n冲刺留下回声，欺骗协同网络。","携带轨道棱与储能护盾。\n贴身游走，寻找封锁线的裂口。"};
+ static Font font; static Target canvas; static Game game; static bool quit,paused,stats,reduced,help,hasAudio,smoke; static int weapon,difficulty,volume=2;
+ static float realTime,accumulator,shake,flash,mx,my; static bool click; static string prevMode="menu"; static string persistWarning=""; static int frames; static float smokeCost; static float bestTime,hardBest; static int bestKills;
+ static string scenario="";static Stopwatch renderWatch;static List<double> renderTimes=new List<double>();static bool buildView,dashQueued;
+ static float canvasScale=1;static bool automatedRun;
+ static string savePath; static float stepCost; static readonly Random visualRandom=new Random(918);
+ static Dictionary<string,byte[]> textCache=new Dictionary<string,byte[]>();
+ static Dictionary<string,Sound> sounds=new Dictionary<string,Sound>(); static Dictionary<string,float> soundAt=new Dictionary<string,float>();
+
+ [STAThread] public static int Main(string[] args){
+  try { Run(args); return 0; }
+  catch(Exception ex){try{File.WriteAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"crash.log"),ex.ToString());}catch{} if(!automatedRun)MessageBox.Show("游戏启动失败。请将整个文件夹解压后再运行。\n\n"+ex.Message,"霓虹余烬",MessageBoxButtons.OK,MessageBoxIcon.Error);return 1;}
+ }
+ static void Run(string[] args){
+  smoke=Array.IndexOf(args,"--smoke")>=0; bool capture=Array.IndexOf(args,"--capture")>=0;int scenarioAt=Array.IndexOf(args,"--scenario");if(scenarioAt>=0&&args.Length>scenarioAt+1)scenario=args[scenarioAt+1];bool automated=smoke||capture||scenario!="";
+  automatedRun=automated;
+  savePath=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"NeonEmber","profile.txt"); LoadProfile();
+  var desktop=Screen.PrimaryScreen.WorkingArea;float initialScale=Math.Min(1.25f,Math.Min((desktop.Width-60)/1280f,(desktop.Height-70)/720f));initialScale=Math.Max(.75f,initialScale);
+  R.SetTraceLogLevel(4); R.SetConfigFlags((uint)(4|32|8192|(automated?128:0))); R.InitWindow((int)(1280*initialScale),(int)(720*initialScale),R.U("霓虹余烬 / NEON EMBER — 猎网协议 v0.4")); R.SetWindowMinSize(960,540); R.SetExitKey(0); R.SetTargetFPS(automated?0:60);
+  LoadFont(); EnsureCanvas(); InitSounds(); game=new Game(Environment.TickCount);
+  if(capture)scenario="play";if(scenario!="")PrepareScenario();
+  Stopwatch sw=new Stopwatch();
+  while(!quit&&!R.WindowShouldClose()){
+   float dt=Math.Min(.1f,Math.Max(0,R.GetFrameTime()));realTime+=dt;frames++;
+   if(!automated)Input(); if(!automated&&!R.IsWindowFocused()&&game.Mode=="play")paused=true;
+   if(smoke||scenario=="runtime") SmokeStep();
+   else if(scenario==""&&!paused&&!help&&!buildView&&!journal&&!codex&&game.Mode=="play"){
+    accumulator=Math.Min(accumulator+dt,.1f); dashQueued|=R.IsKeyPressed(32); float ix=(Down(68,262)?1:0)-(Down(65,263)?1:0),iy=(Down(83,264)?1:0)-(Down(87,265)?1:0);
+    sw.Restart();while(accumulator>=1f/60){game.Step(1f/60,ix,iy,dashQueued);dashQueued=false;accumulator-=1f/60;if(game.Mode!="play"){accumulator=0;break;}}sw.Stop();stepCost=stepCost*.96f+(float)sw.Elapsed.TotalMilliseconds*.04f;
+   }else{accumulator=0;dashQueued=false;}
+   if(scenario=="transition"&&frames==1){mx=500;my=500;click=true;}
+   ProcessEvents(); if(game.Mode=="over"&&prevMode!="over")Record();prevMode=game.Mode;
+   shake=Math.Max(0,shake-dt*25);flash=Math.Max(0,flash-dt*2);
+   EnsureCanvas();renderWatch=Stopwatch.StartNew();R.BeginTextureMode(canvas);R.ClearBackground(BG);R.BeginMode2D(new Camera2D{Zoom=canvasScale});DrawArena();if(game.Mode=="menu")DrawMenu();else{DrawTacticalGround();DrawWorld();DrawTacticalDetails();DrawHud();DrawTacticalHud();if(game.Mode=="level")DrawLevel();if(game.Mode=="shop")DrawShop();if(game.Mode=="over")DrawOver();if(paused&&game.Mode=="play")DrawPause();}if(buildView)DrawBuild();if(help)DrawHelp();if(journal)DrawJournal();if(codex)DrawCodex();R.EndMode2D();R.EndTextureMode();
+   R.BeginDrawing();R.ClearBackground(new Col(3,6,10,255));float scale=Math.Min(R.GetScreenWidth()/1280f,R.GetScreenHeight()/720f);float ox=(R.GetScreenWidth()-1280*scale)/2,oy=(R.GetScreenHeight()-720*scale)/2;
+   float sx=reduced?0:(float)(visualRandom.NextDouble()-.5)*shake*scale,sy=reduced?0:(float)(visualRandom.NextDouble()-.5)*shake*scale;
+   R.DrawTexturePro(canvas.Texture,new Rect(0,0,canvas.Texture.W,-canvas.Texture.H),new Rect(ox+sx,oy+sy,1280*scale,720*scale),new V(0,0),0,White);R.EndDrawing();
+   renderWatch.Stop();if(scenario=="stress"&&frames>30)renderTimes.Add(renderWatch.Elapsed.TotalMilliseconds);
+   if(scenario=="transition"&&frames==1){if(game.Mode!="shop"||game.Coins!=200||game.TotalUpgrades!=1||game.ShopOffers.Count!=3)throw new InvalidOperationException("Upgrade click leaked into the next modal.");click=false;}
+   if(scenario!=""&&frames==(scenario=="runtime"?2400:scenario=="stress"?240:4)){SaveCanvas(scenario+".png");SaveScenario();quit=true;}
+   if(smoke&&frames==2)SaveCanvas("smoke-menu.png");
+   if(smoke&&frames==240)SaveCanvas("smoke-play.png");
+   if(smoke&&frames==500){File.WriteAllText("smoke-result.txt","Native GPU window/render/audio initialized.\nFrames: "+frames+"\nAverage Step (ms): "+(smokeCost/Math.Max(1,frames-3)).ToString("F3",CultureInfo.InvariantCulture)+"\nFont glyphs: "+font.GlyphCount+"\nAudio: "+hasAudio+"\nGame mode: "+game.Mode+"\n");quit=true;}
+  }
+  if(!automated){if(game.Mode!="menu")Record();SaveProfile();}foreach(Sound s in sounds.Values)R.UnloadSound(s);if(hasAudio)R.CloseAudioDevice();R.UnloadRenderTexture(canvas);R.UnloadFont(font);R.CloseWindow();
+ }
+ static void EnsureCanvas(){
+  float desired=automatedRun?1.5f:Math.Max(1,Math.Min(2,Math.Min(R.GetRenderWidth()/1280f,R.GetRenderHeight()/720f)));
+  int height=(int)Math.Round(720*desired/9)*9,width=height/9*16;if(canvas.Texture.W==width&&canvas.Texture.H==height)return;
+  if(canvas.Id!=0)R.UnloadRenderTexture(canvas);canvas=R.LoadRenderTexture(width,height);if(canvas.Id==0)throw new InvalidOperationException("无法创建高清渲染画布。");canvasScale=height/720f;R.SetTextureFilter(canvas.Texture,1);
+ }
+ static bool Down(int a,int b){return R.IsKeyDown(a)||R.IsKeyDown(b);}
+ static void Input(){
+  float scale=Math.Min(R.GetScreenWidth()/1280f,R.GetScreenHeight()/720f);V p=R.GetMousePosition();mx=(p.X-(R.GetScreenWidth()-1280*scale)/2)/scale;my=(p.Y-(R.GetScreenHeight()-720*scale)/2)/scale;click=R.IsMouseButtonPressed(0);
+  if(R.IsKeyPressed(300))R.ToggleBorderlessWindowed(); // F11
+  if(R.IsKeyPressed(292))stats=!stats;if(R.IsKeyPressed(77)){volume=(volume+1)%3;UpdateVolume();SaveProfile();}
+  if(R.IsKeyPressed(256)){if(codex)codex=false;else if(journal)journal=false;else if(help)help=false;else if(buildView)buildView=false;else if(game.Mode=="play")paused=!paused;}
+  if(R.IsKeyPressed(72)){help=!help;journal=false;buildView=false;codex=false;}
+  if(R.IsKeyPressed(66)&&game.Mode!="menu"){buildView=!buildView;help=false;journal=false;codex=false;}
+  if(R.IsKeyPressed(74)){journal=!journal;help=false;buildView=false;codex=false;journalPage=Math.Min(journalPage,UnlockedChapter());}
+  if(R.IsKeyPressed(75)){codex=!codex;help=false;buildView=false;journal=false;click=false;}
+  if(codex)CodexInput();
+  if(!help&&!buildView&&!journal&&!codex&&!paused&&game.Mode=="level"){bool selected=false;for(int i=0;i<3;i++)if(R.IsKeyPressed(49+i)){game.Choose(i);selected=true;click=false;break;}if(!selected&&R.IsKeyPressed(82)){game.Reroll();click=false;}}
+  if(!help&&!journal&&!codex&&game.Mode=="menu"&&R.IsKeyPressed(257))Start();
+  if(game.Mode=="play"&&!paused&&!help&&!buildView&&!journal&&!codex)TargetInput();
+ }
+ static void Start(){game.Start(weapon,difficulty);paused=false;help=false;buildView=false;journal=false;codex=false;accumulator=0;}
+ static void SmokeStep(){if(frames==3)game.Start(0,0);if(frames>3){if(game.Mode=="level")game.Choose(0);if(game.Mode=="shop")game.LeaveShop();game.Hp=game.MaxHp;var sw=Stopwatch.StartNew();for(int i=0;i<6;i++)game.Step(1f/60,(float)Math.Cos(game.Time*.18),(float)Math.Sin(game.Time*.18),frames%130==0);sw.Stop();smokeCost+=(float)sw.Elapsed.TotalMilliseconds;}}
+ static void SaveCanvas(string path){Img img=R.LoadImageFromTexture(canvas.Texture);R.ImageFlipVertical(ref img);if(!R.ExportImage(img,R.U(path)))throw new IOException("无法保存游戏场景截图");R.UnloadImage(img);}
+ static void PrepareScenario(){
+  game=new Game(143);if(scenario=="menu")return;game.Start(0,0);
+  if(scenario=="runtime")return;
+  if(PrepareWorldScenario())return;
+  if(scenario=="level"){game.Ranks["bolt"]=4;game.Xp=game.NextXp;game.Step(1f/60,0,0,false);return;}
+  if(scenario=="shop"){game.Time=89.99f;game.Step(1f/60,0,0,false);game.Coins=145;return;}
+  if(scenario=="over"){game.Time=387;game.Level=24;game.Kills=685;game.Hp=0;game.Step(1f/60,0,0,false);return;}
+  if(scenario=="pause"){paused=true;return;}if(scenario=="help"){help=true;return;}if(scenario=="build"){buildView=true;game.Ranks["bolt"]=5;game.Ranks["arc"]=3;game.Ranks["power"]=2;game.Ranks["guard"]=1;return;}
+  // Deterministic fixtures exercise the actual renderer without driving OS input or touching saves.
+  game.Time=scenario=="boss"?179.99f:117.4f;game.Step(1f/60,0,0,false);if(game.Mode=="shop")game.LeaveShop();game.Coins=138;game.Kills=218;game.Level=16;game.NextXp=196.5f;game.Hp=78;game.Ranks["bolt"]=3;game.Ranks["arc"]=2;game.Ranks["blade"]=3;stats=scenario=="stress";game.AnnouncementTime=0;
+  Random fixture=new Random(99);string[] kinds={"chaser","runner","shooter","bomber","tank"};int count=scenario=="stress"?359:38;
+  for(int i=0;i<count;i++){string k=kinds[i%5];float x=48+(float)fixture.NextDouble()*1180,y=135+(float)fixture.NextDouble()*472;if((x-640)*(x-640)+(y-380)*(y-380)<95*95)x+=190;Enemy e=new Enemy{Id=100+i,Kind=k,X=x,Y=y,R=k=="tank"?22:13,Hp=52,MaxHp=70,Speed=50,Damage=12};if(i%9==0){e.AttackPhase=1;e.Windup=.7f;e.TargetX=game.X+55;e.TargetY=game.Y+60;}game.Enemies.Add(e);}
+  for(int i=0;i<(scenario=="stress"?900:34);i++){float a=(float)fixture.NextDouble()*6.28f;game.Shots.Add(new Shot{X=40+(float)fixture.NextDouble()*1200,Y=130+(float)fixture.NextDouble()*480,R=i%3==0?6:4,Hostile=i%3==0,VX=(float)Math.Cos(a)*330,VY=(float)Math.Sin(a)*330,Life=3,Damage=12});}
+  for(int i=0;i<(scenario=="stress"?280:50);i++)game.Orbs.Add(new Orb{X=40+(float)fixture.NextDouble()*1200,Y=130+(float)fixture.NextDouble()*480,Value=8});
+  for(int i=0;i<(scenario=="stress"?220:8);i++)game.Effects.Add(new Effect{X=40+(float)fixture.NextDouble()*1200,Y=130+(float)fixture.NextDouble()*480,X2=640,Y2=380,R=24,Life=.4f,MaxLife=.5f,Kind=i%3==0?"arc":"death"});
+  game.Events.Clear();
+ }
+ static void SaveScenario(){
+  renderTimes.Sort();double p95=renderTimes.Count>0?renderTimes[(int)((renderTimes.Count-1)*.95)]:0,avg=0;foreach(double t in renderTimes)avg+=t;avg/=Math.Max(1,renderTimes.Count);
+  int elites=0,active=0;foreach(Enemy e in game.Enemies){if(e.Elite)elites++;if(e.AttackPhase==1||e.AttackPhase==2)active++;}
+  var j=new StringBuilder("{\"version\":\"0.4\"");
+  j.Append(",\"scenario\":").Append(JsonText(scenario)).Append(",\"mode\":").Append(JsonText(game.Mode));
+  j.Append(",\"time\":").Append(game.Time.ToString(CultureInfo.InvariantCulture)).Append(",\"level\":").Append(game.Level).Append(",\"hp\":").Append(game.Hp.ToString(CultureInfo.InvariantCulture));
+  j.Append(",\"coins\":").Append(game.Coins).Append(",\"upgrades\":").Append(game.TotalUpgrades).Append(",\"enemies\":").Append(game.Enemies.Count).Append(",\"eliteEnemies\":").Append(elites).Append(",\"activeSpecials\":").Append(active);
+  j.Append(",\"frames\":").Append(frames).Append(",\"bossesDefeated\":").Append(game.CompletedBosses).Append(",\"runtimeStepBatchMeanMs\":").Append((smokeCost/Math.Max(1,frames-3)).ToString("F3",CultureInfo.InvariantCulture));
+  j.Append(",\"shots\":").Append(game.Shots.Count).Append(",\"orbs\":").Append(game.Orbs.Count).Append(",\"effects\":").Append(game.Effects.Count).Append(",\"hazards\":").Append(game.Hazards.Count);
+  j.Append(",\"squadPhase\":").Append(JsonText(game.SquadPhase)).Append(",\"circleConfidence\":").Append(game.CircleConfidence.ToString(CultureInfo.InvariantCulture));
+  j.Append(",\"canvasWidth\":").Append(canvas.Texture.W).Append(",\"canvasHeight\":").Append(canvas.Texture.H).Append(",\"fontGlyphs\":").Append(font.GlyphCount);
+  j.Append(",\"renderMeanMs\":").Append(avg.ToString("F3",CultureInfo.InvariantCulture)).Append(",\"renderP95Ms\":").Append(p95.ToString("F3",CultureInfo.InvariantCulture)).Append(",\"renderSamples\":").Append(renderTimes.Count).Append(",\"audioInitialized\":").Append(hasAudio?"true":"false").Append("}");
+  File.WriteAllText(scenario+".json",j.ToString(),Encoding.UTF8);
+ }
+ static string JsonText(string s){return "\""+(s??"").Replace("\\","\\\\").Replace("\"","\\\"").Replace("\n","\\n").Replace("\r","")+"\"";}
+
+ static void LoadFont(){
+  HashSet<int> chars=new HashSet<int>();for(int i=32;i<127;i++)chars.Add(i);string all="霓虹余烬未删之城";
+  using(Stream s=Assembly.GetExecutingAssembly().GetManifestResourceStream("glyphs.txt")){if(s!=null)using(StreamReader sr=new StreamReader(s,Encoding.UTF8))all+=sr.ReadToEnd();}
+  foreach(char ch in all)if(!char.IsControl(ch)&&!char.IsSurrogate(ch))chars.Add(ch);int[] cps=new int[chars.Count];chars.CopyTo(cps);
+  string fonts=Environment.GetFolderPath(Environment.SpecialFolder.Fonts);string path=Path.Combine(fonts,"msyh.ttc");if(!File.Exists(path))path=Path.Combine(fonts,"simhei.ttf");if(!File.Exists(path))path=Path.Combine(fonts,"arial.ttf");
+  byte[] data=ExtractTtc(File.ReadAllBytes(path));font=R.LoadFontFromMemory(R.U(".ttf"),data,data.Length,72,cps,cps.Length);if(font.Texture.Id==0||font.GlyphCount<=224)throw new Exception("无法加载系统中文字体。");R.SetTextureFilter(font.Texture,1);
+ }
+ static int BE(byte[] b,int o){return (b[o]<<24)|(b[o+1]<<16)|(b[o+2]<<8)|b[o+3];}
+ static void PutBE(byte[] b,int o,int v){b[o]=(byte)(v>>24);b[o+1]=(byte)(v>>16);b[o+2]=(byte)(v>>8);b[o+3]=(byte)v;}
+ // Windows Chinese fonts are TTC collections. stb_truetype expects an SFNT at byte zero.
+ // Rebuild the first face in memory, retaining table bytes and relocating their offsets.
+ static byte[] ExtractTtc(byte[] b){if(b.Length<16||b[0]!='t'||b[1]!='t'||b[2]!='c'||b[3]!='f')return b;int off=BE(b,12),n=(b[off+4]<<8)|b[off+5],head=12+16*n,total=head;for(int i=0;i<n;i++)total+=(BE(b,off+12+i*16+12)+3)&~3;byte[] result=new byte[total];Buffer.BlockCopy(b,off,result,0,head);int dest=head;for(int i=0;i<n;i++){int rec=12+i*16,src=BE(b,off+rec+8),len=BE(b,off+rec+12);Buffer.BlockCopy(b,src,result,dest,len);PutBE(result,rec+8,dest);dest+=(len+3)&~3;}return result;}
+ static byte[] Enc(string s){byte[] b;if(!textCache.TryGetValue(s,out b)){if(textCache.Count>1024)textCache.Clear();b=R.U(s);textCache[s]=b;}return b;}
+ static void T(string s,float x,float y,float size,Col c){R.DrawTextEx(font,Enc(s),new V(x,y),size,1,c);}
+ static float TW(string s,float size){return R.MeasureTextEx(font,Enc(s),size,1).X;}
+ static void TC(string s,float x,float y,float size,Col c){T(s,x-TW(s,size)/2,y,size,c);}
+ static void Wrap(string s,float x,float y,float max,float size,Col c){string line="";foreach(char ch in s){if(ch=='\n'){T(line,x,y,size,c);y+=size*1.55f;line="";}else{string n=line+ch;if(TW(n,size)>max&&line.Length>0&&"。，；：！？、）】".IndexOf(ch)<0){T(line,x,y,size,c);y+=size*1.55f;line=ch.ToString();}else line=n;}}if(line.Length>0)T(line,x,y,size,c);}
+ static void Box(float x,float y,float w,float h,Col color){R.DrawRectangleRec(new Rect(x,y,w,h),color);}
+ static void L(float x,float y,float x2,float y2,float w,Col c){R.DrawLineEx(new V(x,y),new V(x2,y2),w,c);}
+ static void Card(float x,float y,float w,float h,Col border){R.DrawRectangleRounded(new Rect(x,y,w,h),.07f,6,Panel);R.DrawRectangleRoundedLinesEx(new Rect(x,y,w,h),.07f,6,1,border);}
+ static bool Hit(float x,float y,float w,float h){return mx>=x&&mx<=x+w&&my>=y&&my<=y+h;}
+ static bool ConsumeClick(bool enabled){if(!enabled||!click)return false;click=false;return true;}
+ static bool Button(string text,float x,float y,float w,float h,bool primary,bool enabled){bool hover=Hit(x,y,w,h)&&enabled&&!help&&!buildView&&!journal&&!codex;Col c=primary?Cyan:Line;R.DrawRectangleRounded(new Rect(x,y,w,h),.15f,6,(hover?c.Alpha(.9f):c).Alpha(enabled?1:.3f));TC(text,x+w/2,y+(h-18)/2,18,primary?BG:White.Alpha(enabled?1:.4f));return ConsumeClick(hover);}
+ static string Clock(float t){return ((int)t/60).ToString("00")+":"+((int)t%60).ToString("00");}
+ static int Rank(string k){int n;return game.Ranks.TryGetValue(k,out n)?n:0;}
+
+ static void DrawArena(){
+  for(int x=32;x<1280;x+=48)L(x,102,x,641,1,new Col(20,31,42,255));for(int y=113;y<642;y+=48)L(24,y,1256,y,1,new Col(20,31,42,255));
+  for(int i=0;i<56;i++){float x=(i*237+31)%1248+16,y=(i*113+89)%505+119;R.DrawCircleV(new V(x,y),i%4==0?1.6f:1,new Col(57,86,96,130));}
+  L(24,103,1256,103,1,Line);L(24,641,1256,641,1,Line);L(24,103,24,641,1,Line);L(1256,103,1256,641,1,Line);
+  for(int i=0;i<4;i++){float x=i%2==0?24:1256,y=i<2?103:641,dx=i%2==0?1:-1,dy=i<2?1:-1;L(x,y,x+24*dx,y,2,Cyan.Alpha(.45f));L(x,y,x,y+24*dy,2,Cyan.Alpha(.45f));}
+ }
+ static void Emblem(float x,float y,float radius,float spin,Col c){R.DrawPolyLinesEx(new V(x,y),6,radius,spin,2,c.Alpha(.4f));R.DrawPolyLinesEx(new V(x,y),3,radius*.7f,-spin,3,c);R.DrawCircleV(new V(x,y),radius*.16f,c);}
+ static Col EnemyColor(string kind){return EnemyRoleColor(kind);}
+ static void DrawWorld(){
+  for(int i=0;i<game.Orbs.Count;i++){Orb o=game.Orbs[i];R.DrawPoly(new V(o.X,o.Y),4,o.R,0,Cyan.Alpha(.2f));R.DrawPoly(new V(o.X,o.Y),4,Math.Max(2.5f,o.R*.55f),0,Cyan);}
+  for(int i=0;i<game.Effects.Count;i++){
+   Effect e=game.Effects[i];float a=e.MaxLife>0?e.Life/e.MaxLife:1;Col c=e.Kind=="aoeWarn"||e.Kind=="aoeBlast"?Pink:e.Kind=="death"||e.Kind=="repair"?Gold:Cyan;
+   if(e.Kind=="arc"){L(e.X,e.Y,(e.X+e.X2)/2+8,(e.Y+e.Y2)/2-10,3,c.Alpha(a));L((e.X+e.X2)/2+8,(e.Y+e.Y2)/2-10,e.X2,e.Y2,3,c.Alpha(a));}
+   else if(e.Kind=="aoeWarn"){R.DrawCircleV(new V(e.X,e.Y),e.R,c.Alpha(.08f));R.DrawCircleLinesV(new V(e.X,e.Y),e.R,c.Alpha(.7f));}
+   else if(e.Kind=="dash") {L(e.X,e.Y,e.X2,e.Y2,8,c.Alpha(a*.35f));}
+   else{R.DrawCircleLinesV(new V(e.X,e.Y),Math.Max(1,e.R*(1.2f-a*.4f)),c.Alpha(a));if(e.Kind=="death"&&!reduced)for(int j=0;j<5;j++){float an=j*1.2566f;R.DrawCircleV(new V(e.X+(float)Math.Cos(an)*e.R*(1-a),e.Y+(float)Math.Sin(an)*e.R*(1-a)),2,c.Alpha(a));}}
+  }
+  foreach(Enemy e in game.Enemies){
+   Col c=EnemyColor(e.Kind);DrawAttackWarning(e,c);
+   DrawEnemyBody(e,c);
+   if(e.Hp<e.MaxHp){Box(e.X-e.R,e.Y-e.R-8,e.R*2,3,Line);Box(e.X-e.R,e.Y-e.R-8,e.R*2*Math.Max(0,e.Hp/e.MaxHp),3,c);}
+  }
+  foreach(Shot s in game.Shots){Col c=s.Hostile?Pink:Cyan;L(s.X-s.VX*.014f,s.Y-s.VY*.014f,s.X,s.Y,s.Hostile?3:2,c.Alpha(.45f));R.DrawCircleV(new V(s.X,s.Y),s.R,c);if(s.Hostile)R.DrawCircleLinesV(new V(s.X,s.Y),s.R+3,c.Alpha(.35f));}
+  int blade=Rank("blade");if(blade>0){int count=1+blade;for(int i=0;i<count;i++){float a=game.BladeAngle+i*(float)Math.PI*2/count;float rad=63+blade*6;V p=new V(game.X+(float)Math.Cos(a)*rad,game.Y+(float)Math.Sin(a)*rad);R.DrawPoly(p,3,9,game.Time*260+i*60,Cyan);}}
+  float angle=(float)(Math.Atan2(game.AimY,game.AimX)*180/Math.PI);float alpha=game.Invulnerable>0&&((int)(realTime*15)%2==0)?.38f:1;
+  R.DrawCircleV(new V(game.X,game.Y),26,Cyan.Alpha(.06f));R.DrawPoly(new V(game.X,game.Y),3,16,angle,White.Alpha(alpha));R.DrawPoly(new V(game.X,game.Y),3,10,angle,Cyan.Alpha(alpha));
+  if(game.DashTime>0)R.DrawCircleLinesV(new V(game.X,game.Y),23,Cyan);if(Rank("guard")>0)R.DrawCircleLinesV(new V(game.X,game.Y),22,new Col(112,159,232,90));
+  if(game.AnnouncementTime>0){float a=Math.Min(1,game.AnnouncementTime);Card(416,119,448,42,Line.Alpha(a));TC(game.Announcement,640,130,18,Gold.Alpha(a));}
+  if(flash>0&&!reduced){Box(0,102,12,540,Pink.Alpha(flash));Box(1268,102,12,540,Pink.Alpha(flash));}
+ }
+ static void DrawHud(){
+  Box(0,0,1280,102,BG);Box(0,643,1280,77,BG);T("N / E",27,20,20,Cyan);T("未删之城",27,53,14,Muted);
+  T("装甲  "+Math.Ceiling(game.Hp)+" / "+game.MaxHp,161,18,17,White);Box(162,48,224,7,Line);Box(162,48,224*Math.Max(0,game.Hp/game.MaxHp),7,game.Hp<game.MaxHp*.3f?Pink:Cyan);T("Lv. "+game.Level,423,18,17,White);T("能量  "+(int)game.Xp+" / "+(int)game.NextXp,512,21,13,Muted);Box(424,49,246,6,Line);Box(424,49,246*Math.Min(1,game.Xp/game.NextXp),6,Violet);
+  T(game.Phase,708,17,18,Gold);T("击破 "+game.Kills+"    合金 "+game.Coins,708,48,15,Muted);TC(Clock(game.Time),1170,15,32,White);TC("危险等级 "+game.Stage,1170,55,13,Pink);
+  float cyc=game.Time%30/30;Box(24,86,1232,2,Line);Box(24,86,1232*cyc,2,game.Time%30>=17&&game.Time%30<25?Pink:Cyan);
+  string[] keys={"bolt","arc","blade"};for(int i=0;i<3;i++){float x=28+i*152;int n=Rank(keys[i]);T(WeaponNames[i],x,655,15,n>0?White:Muted.Alpha(.4f));for(int j=0;j<5;j++)Box(x+j*20,681,14,4,j<n?(i==0?Cyan:i==1?Violet:Gold):Line);if(n>=5)T("进化",x+102,676,12,Gold);}
+  T(game.DashCooldown<=0?"SPACE  冲刺就绪":"冲刺冷却  "+game.DashCooldown.ToString("F1")+"s",510,656,17,game.DashCooldown<=0?Cyan:Muted);T("B 构筑 · J 档案 · K 图鉴 · ESC 暂停",510,683,14,Muted);
+  Enemy boss=null;foreach(Enemy e in game.Enemies)if(e.Kind=="boss"&&e.Hp>0){boss=e;break;}
+  T(boss!=null?"监察者交战中 / 击破后补给":"补给 "+Math.Ceiling(90-game.Time%90)+"s   /   BOSS "+Math.Ceiling(180-game.Time%180)+"s",929,657,14,boss!=null?Gold:Muted);T("M 音效 "+(volume==0?"关闭":volume==1?"轻柔":"标准")+"  ·  F3 性能",967,684,12,Muted);
+  if(boss!=null){Card(889,10,207,67,Line);T("监察者 / 阶段 "+boss.BossStage,901,18,15,Gold);Fit(Math.Ceiling(boss.Hp)+" / "+Math.Ceiling(boss.MaxHp),901,41,182,13,Muted);Box(901,64,182,5,Line);Box(901,64,182*Math.Max(0,boss.Hp/boss.MaxHp),5,Gold);}
+  if(stats){Card(27,114,298,73,Line);T("FPS "+R.GetFPS()+"  /  逻辑 "+stepCost.ToString("F2")+" ms",41,125,15,Cyan);T("敌人 "+game.Enemies.Count+"  弹丸 "+game.Shots.Count+"  特效 "+game.Effects.Count,41,151,13,Muted);}
+ }
+ static void Shade(){Box(0,0,1280,720,new Col(3,8,14,226));}
+ static void DrawPause(){Shade();Card(371,111,538,485,Line);T("暂停 / PAUSED",407,144,15,Cyan);T("稍作喘息",404,182,38,White);T("回到战场后，时间与敌人才会继续。",408,240,17,Muted);
+  if(Button("继续战斗",408,291,462,50,true,true))paused=false;if(Button("音效："+(volume==0?"关闭":volume==1?"轻柔":"标准"),408,357,218,42,false,true)){volume=(volume+1)%3;UpdateVolume();SaveProfile();}if(Button(reduced?"屏幕震动：关闭":"屏幕震动：开启",643,357,227,42,false,true)){reduced=!reduced;SaveProfile();}
+  if(Button("操作指南",408,418,462,42,false,true))help=true;if(Button("结束本局，返回主菜单",408,479,462,42,false,true)){Record();game.Mode="menu";paused=false;}
+  TC("ESC 继续  ·  F11 全屏  ·  关闭窗口退出",640,553,14,Muted);
+ }
+ static void DrawOver(){Shade();T("SIGNAL LOST / 本轮结束",115,115,16,Pink);T("余烬仍在。再突破一次。",110,159,42,White);T("存活时间",115,264,17,Muted);T(Clock(game.Time),110,299,62,Cyan);T("击破",500,264,17,Muted);T(game.Kills.ToString(),496,307,44,White);T("构筑等级",867,264,17,Muted);T("Lv. "+game.Level,863,307,44,Gold);
+  Card(114,419,1051,85,Line);T("本地最高   "+Clock(difficulty==0?bestTime:hardBest),139,436,22,White);T("持续走位收集能量；保留冲刺穿过红色预警；组合多种攻击方式。",139,472,15,Muted);
+  if(Button("返回主菜单",115,558,267,52,false,true))game.Mode="menu";if(Button("再来一局  ↗",843,558,322,52,true,true))Start();
+ }
+ static void ProcessEvents(){if(game.StoryChapter>savedChapter&&scenario==""&&!smoke){savedChapter=game.StoryChapter;archiveUntil=realTime+7;SaveProfile();}foreach(string ev in game.Events){Play(ev);if(ev=="hurt"){shake=reduced?0:8;flash=.7f;}if(ev=="boss"||ev=="evolve")shake=reduced?0:5;}game.Events.Clear();}
+ static void InitSounds(){try{R.InitAudioDevice();hasAudio=R.IsAudioDeviceReady();if(!hasAudio)return;sounds["shoot"]=Tone(700,140,.045f,.13f);sounds["hit"]=Tone(160,60,.05f,.13f);sounds["hurt"]=Tone(100,45,.18f,.32f);sounds["dash"]=Tone(140,900,.15f,.18f);sounds["pickup"]=Tone(950,1600,.065f,.11f);sounds["level"]=Tone(420,1050,.45f,.22f);sounds["evolve"]=Tone(280,1400,.65f,.24f);sounds["boss"]=Tone(160,55,.8f,.3f);sounds["buy"]=Tone(650,1050,.16f,.2f);sounds["death"]=Tone(330,40,.8f,.22f);UpdateVolume();}catch{hasAudio=false;}}
+ static Sound Tone(float from,float to,float duration,float gain){int count=(int)(22050*duration);short[] samples=new short[count];double phase=0;for(int i=0;i<count;i++){double t=i/(double)count;phase+=2*Math.PI*(from+(to-from)*t)/22050;double env=Math.Min(1,t*25)*Math.Pow(1-t,1.7);samples[i]=(short)(Math.Sin(phase)*env*gain*short.MaxValue);}IntPtr data=Marshal.AllocHGlobal(count*2);Marshal.Copy(samples,0,data,count);Sound s=R.LoadSoundFromWave(new Wave{Frames=(uint)count,Rate=22050,Size=16,Channels=1,Data=data});Marshal.FreeHGlobal(data);return s;}
+ static void UpdateVolume(){foreach(Sound s in sounds.Values)R.SetSoundVolume(s,volume==0?0:volume==1?.25f:.65f);}
+ static void Play(string ev){if(!hasAudio||volume==0||smoke||scenario!="")return;Sound s;float at;if(sounds.TryGetValue(ev,out s)){float limit=ev=="pickup"?.09f:ev=="hit"?.07f:.02f;if(!soundAt.TryGetValue(ev,out at)||realTime-at>limit){R.PlaySound(s);soundAt[ev]=realTime;}}}
+ static void LoadProfile(){try{if(!File.Exists(savePath))return;foreach(string l in File.ReadAllLines(savePath)){string[] s=l.Split('=');if(s.Length!=2)continue;float n;if(!float.TryParse(s[1],NumberStyles.Float,CultureInfo.InvariantCulture,out n)||float.IsNaN(n)||float.IsInfinity(n))continue;if(s[0]=="best")bestTime=Math.Max(0,n);if(s[0]=="hardBest")hardBest=Math.Max(0,n);if(s[0]=="kills")bestKills=(int)Math.Max(0,n);if(s[0]=="volume")volume=Math.Max(0,Math.Min(2,(int)n));if(s[0]=="reduced")reduced=n==1;if(s[0]=="chapter")savedChapter=Math.Max(0,Math.Min(3,(int)n));}}catch{persistWarning="暂时无法读取本地纪录，本局仍可正常游玩。";}}
+ static void Record(){if(smoke||scenario!="")return;if(difficulty==0)bestTime=Math.Max(bestTime,game.Time);else hardBest=Math.Max(hardBest,game.Time);bestKills=Math.Max(bestKills,game.Kills);SaveProfile();}
+ static void SaveProfile(){if(smoke||scenario!="")return;try{Directory.CreateDirectory(Path.GetDirectoryName(savePath));string temp=savePath+".tmp";File.WriteAllText(temp,"best="+bestTime.ToString(CultureInfo.InvariantCulture)+"\nhardBest="+hardBest.ToString(CultureInfo.InvariantCulture)+"\nkills="+bestKills+"\nvolume="+volume+"\nreduced="+(reduced?1:0)+"\nchapter="+savedChapter,Encoding.UTF8);if(File.Exists(savePath))File.Replace(temp,savePath,null);else File.Move(temp,savePath);}catch{persistWarning="无法写入本地纪录，本局仍可正常游玩。";}}
+}
+}
+
+
+
+
+
+
+using System;
+using System.Collections.Generic;
+namespace NeonEmber {
+public static partial class Program {
+    static bool journal;
+    static bool codex;
+    static int codexPage;
+    static int journalPage, savedChapter;
+    static float archiveUntil;
+    static readonly string[] SchoolIds = {"ember","echo","forge"};
+    static readonly Dictionary<int,Enemy> enemyLookup = new Dictionary<int,Enemy>();
+    static Col SchoolColor(string id) { return id=="ember"?Gold:id=="echo"?Violet:Cyan; }
+    static int UnlockedChapter() { return Math.Min(Lore.StoryCount-1,Math.Max(savedChapter,game==null?0:game.StoryChapter)); }
+    static bool PrepareWorldScenario() {
+        if(scenario=="boss_patterns"){
+            // Capture actual attack planning from three independent encounters side by side.
+            // This is a rendering fixture, not a claim that one boss casts all three at once.
+            game.Time=20;game.X=640;game.Y=560;game.Ranks.Clear();
+            System.Reflection.MethodInfo begin=typeof(Game).GetMethod("TryBeginAttack",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic);
+            for(int i=0;i<3;i++){
+                Game encounter=new Game(143+i);encounter.Start(0,0);encounter.Time=20;encounter.X=300+i*340;encounter.Y=410;
+                Enemy boss=new Enemy{Id=710+i,Kind="boss",X=encounter.X-165,Y=310,R=34,Hp=1800,MaxHp=2200,Damage=19,AttackSerial=i};encounter.Enemies.Add(boss);
+                if(!(bool)begin.Invoke(encounter,new object[]{boss}))throw new InvalidOperationException("Boss shape fixture did not enter real windup: "+i);
+                game.Enemies.Add(boss);foreach(Hazard hazard in encounter.Hazards)game.Hazards.Add(hazard);
+            }
+            game.Announcement="形状检视 / 三个独立前摇快照";game.AnnouncementTime=30;game.Events.Clear();return true;
+        }
+        if(scenario=="codex"){codex=true;codexPage=7;return true;}
+        if(scenario=="encounter"||scenario=="elite"){
+            game.Time=52;game.X=600;game.Y=390;game.Hp=83;game.Coins=97;game.Level=17;
+            game.Ranks["bolt"]=3;game.Ranks["arc"]=2;game.Ranks["echo_decoy"]=1;game.Ranks["forge_ward"]=2;game.Ward=18;
+            string[] encounterKinds={"relay","tank","repairer","prism","shooter","shooter","runner","bomber"};
+            float[] encounterXs={890,795,976,786,916,830,391,390};float[] encounterYs={340,340,448,492,524,231,265,494};
+            for(int i=0;i<encounterKinds.Length;i++)game.Enemies.Add(new Enemy{Id=501+i,Kind=encounterKinds[i],X=encounterXs[i],Y=encounterYs[i],R=i==0?20:i==1?22:15,Hp=i==0?190:90,MaxHp=i==0?240:120,Speed=80,Damage=14,Cooldown=1.5f,Elite=i==2||i==3,FacingX=-1,FacingY=0,RelayId=i>0?501:0,SquadClock=i==0?1.4f:0});
+            for(int i=0;i<24;i++)game.Step(1f/60,0,1,false);
+            game.FocusTargetId=scenario=="elite"?504:501;game.AnnouncementTime=0;game.Events.Clear();
+            Enemy repairer=game.Enemies.Find(delegate(Enemy e){return e.Id==503;});if(repairer!=null){repairer.Channel=.8f;repairer.MaxChannel=1.4f;repairer.RepairTargetId=501;}
+            game.Hazards.Add(new Hazard{OwnerId=501,Shape="line",X=400,Y=250,X2=760,Y2=538,R=17,Warning=.8f,Life=1.8f,Damage=15});
+            game.Hazards.Add(new Hazard{OwnerId=501,Shape="circle",X=610,Y=536,R=48,Warning=.9f,Life=2,Damage=13});
+            return true;
+        }
+        if(scenario=="transition"){
+            game.Time=89.99f;game.Coins=200;game.Orbs.Add(new Orb{X=game.X,Y=game.Y,Value=game.NextXp});game.Step(1f/60,0,0,false);
+            if(game.Mode!="level")throw new InvalidOperationException("Transition fixture did not reach level selection.");return true;
+        }
+        if(scenario=="upgrades"){
+            game.Ranks["ember_brand"]=3;game.Ranks["echo_jammer"]=3;game.Ranks["forge_breaker"]=3;game.Level=12;game.Mode="level";game.Choices.Clear();
+            game.Choices.Add(game.WorldUpgradeInfo("ember_brand"));game.Choices.Add(game.WorldUpgradeInfo("echo_jammer"));game.Choices.Add(game.WorldUpgradeInfo("forge_breaker"));game.Ranks["ember_brand"]=2;game.Ranks["echo_jammer"]=2;game.Ranks["forge_breaker"]=2;return true;
+        }
+        if(scenario=="archive"){game.StoryChapter=2;journal=true;journalPage=2;return true;}
+        if(scenario=="schools"){
+            game.Ranks["ember_brand"]=2;game.Ranks["ember_breach"]=2;game.Ranks["ember_cascade"]=2;game.Ranks["echo_jammer"]=2;game.Ranks["forge_ward"]=2;game.Ward=game.MaxWard;buildView=true;return true;
+        }
+        if(scenario!="tactics")return false;
+        game.Time=35;game.Ranks["bolt"]=2;game.Ranks["echo_jammer"]=1;game.Ranks["forge_ward"]=1;game.Ward=14;
+        string[] kinds={"relay","tank","shooter","shooter","runner","runner","bomber"};float[] xs={990,905,955,970,430,480,520};float[] ys={330,340,242,460,200,536,407};
+        for(int i=0;i<kinds.Length;i++){game.Enemies.Add(new Enemy{Id=301+i,Kind=kinds[i],X=xs[i],Y=ys[i],R=i==0?20:i==1?22:13,Hp=800,MaxHp=800,Speed=i==1?72:88,Damage=12,Cooldown=i==6?0:.55f});}
+        for(int i=0;i<40;i++)game.Step(1f/60,1,0,false);
+        game.FocusTargetId=301;game.AnnouncementTime=0;game.Hp=100;game.Coins=62;game.Kills=77;
+        return true;
+    }
+    static void Fit(string s,float x,float y,float max,float size,Col color) { if(s==null)return;float w=TW(s,size);T(s,x,y,w>max?size*max/w:size,color); }
+    static bool ModalButton(string s,float x,float y,float w,float h,bool enabled) {
+        bool hover=enabled&&Hit(x,y,w,h);Card(x,y,w,h,hover?Cyan:Line);TC(s,x+w/2,y+(h-17)/2,17,enabled?White:Muted.Alpha(.4f));return ConsumeClick(hover);
+    }
+    static void TargetInput() {
+        if(R.IsKeyPressed(69)){
+            Enemy best=null;float score=float.MaxValue;
+            foreach(Enemy e in game.Enemies)if(e.Kind=="relay"&&e.Hp>0){float d=(e.X-game.X)*(e.X-game.X)+(e.Y-game.Y)*(e.Y-game.Y);if(d<score){score=d;best=e;}}
+            if(best==null){foreach(Enemy e in game.Enemies)if(e.Hp>0){float d=(e.X-game.X)*(e.X-game.X)+(e.Y-game.Y)*(e.Y-game.Y);if(d<score){score=d;best=e;}}}
+            game.FocusTargetId=best==null?0:game.FocusTargetId==best.Id?0:best.Id;
+        }
+        if(click&&my>104&&my<640){Enemy chosen=null;float distance=900;foreach(Enemy e in game.Enemies){float d=(e.X-mx)*(e.X-mx)+(e.Y-my)*(e.Y-my);if(e.Hp>0&&d<(e.R+14)*(e.R+14)&&d<distance){distance=d;chosen=e;}}game.FocusTargetId=chosen==null?0:chosen.Id;}
+    }
+    static void DrawTacticalGround() {
+        // Readouts sit under all units, projectiles and hazards, so even a locked target
+        // moving into its information card remains visible and clickable.
+        if(game.Mode=="play"){DrawSquadReadout();DrawTargetReadout();}
+        enemyLookup.Clear();foreach(Enemy e in game.Enemies)enemyLookup[e.Id]=e;
+        foreach(Hazard h in game.Hazards)DrawHazard(h);
+        foreach(Enemy e in game.Enemies){Enemy other;
+            if(e.RelayId!=0&&enemyLookup.TryGetValue(e.RelayId,out other)&&other.Hp>0){bool important=e.Id==game.FocusTargetId||other.Id==game.FocusTargetId;DashedLine(e.X,e.Y,other.X,other.Y,important?2:1,Violet.Alpha(important?.5f:.2f));}
+            if(e.Shielded&&e.GuardId!=0&&enemyLookup.TryGetValue(e.GuardId,out other)&&other.Hp>0)L(e.X,e.Y,other.X,other.Y,2,Gold.Alpha(.45f));
+            if(e.Channel>0&&e.RepairTargetId!=0&&enemyLookup.TryGetValue(e.RepairTargetId,out other)&&other.Hp>0){L(e.X,e.Y,other.X,other.Y,6,Gold.Alpha(.1f));DashedLine(e.X,e.Y,other.X,other.Y,3,Gold.Alpha(.8f));}
+        }
+    }
+    static void DrawTacticalDetails() {
+        foreach(Enemy e in game.Enemies){
+            if(e.Kind=="relay"){R.DrawPolyLinesEx(new V(e.X,e.Y),6,e.R+8,0,1.5f,Violet);EnemyTag("指挥",e.X,e.Y-e.R-28,Violet);}
+            if(e.BurnTime>0){R.DrawRing(new V(e.X,e.Y),e.R+2,e.R+4,realTime*120,realTime*120+170,16,Gold.Alpha(.85f));}
+            if(e.Shielded)R.DrawRing(new V(e.X,e.Y),e.R+5,e.R+7,0,360,24,Gold.Alpha(.7f));
+            if(e.Elite){R.DrawPolyLinesEx(new V(e.X,e.Y),6,e.R+12,30,2,Gold);EnemyTag("精英",e.X,e.Y-e.R-30,Gold);}
+            if(e.Channel>0){float ratio=1-e.Channel/Math.Max(.01f,e.MaxChannel);Box(e.X-24,e.Y+e.R+9,48,5,Line);Box(e.X-24,e.Y+e.R+9,48*Math.Max(0,Math.Min(1,ratio)),5,Gold);if(e.Id!=game.FocusTargetId)EnemyTag("修复引导",e.X,e.Y-e.R-28,Gold);}
+            if(e.Stun>0){R.DrawPolyLinesEx(new V(e.X,e.Y),4,e.R+11,45,1,Violet);TC("失联",e.X,e.Y+e.R+9,11,Violet);}
+            if(e.Id==game.FocusTargetId){float r=e.R+15;L(e.X-r,e.Y-r,e.X-r+8,e.Y-r,2,White);L(e.X-r,e.Y-r,e.X-r,e.Y-r+8,2,White);L(e.X+r,e.Y+r,e.X+r-8,e.Y+r,2,White);L(e.X+r,e.Y+r,e.X+r,e.Y+r-8,2,White);EnemyTag("锁定",e.X,e.Y+e.R+25,White);}
+        }
+        if(game.DecoyTime>0){R.DrawPolyLinesEx(new V(game.DecoyX,game.DecoyY),3,17,0,2,Violet.Alpha(.65f));R.DrawCircleLinesV(new V(game.DecoyX,game.DecoyY),29,Violet.Alpha(.4f));T("回声",game.DecoyX+24,game.DecoyY-8,12,Violet);}
+        if(game.MaxWard>0&&game.Ward>0)R.DrawRing(new V(game.X,game.Y),27,29,-90,-90+360*game.Ward/game.MaxWard,32,Cyan.Alpha(.8f));
+    }
+    static void DrawTacticalHud() {
+        if(game.Mode!="play")return;
+        string readout=string.IsNullOrEmpty(game.MotionReadout)?"网络正在观察你的移动":game.MotionReadout;
+        Fit(readout,41,608,720,16,game.CircleConfidence>.5f?Gold:Muted);
+        T("E 锁节点  ·  点击锁定  ·  K 怪物图鉴",868,610,14,Muted);
+        if(game.MaxWard>0)T("护盾 "+Math.Ceiling(game.Ward)+" / "+game.MaxWard,163,68,12,Cyan);
+        if(realTime<archiveUntil){Card(40,200,355,70,Violet);T("记忆已解封  /  J 阅读",55,214,15,Violet);Fit(Lore.StoryTitle(UnlockedChapter()),55,241,320,15,White);}
+    }
+    static void DrawMenu() {
+        Box(0,0,1280,720,BG.Alpha(.96f));T("N / E",62,36,19,Cyan);T("NEON EMBER / ARCHIVE BREACH",136,39,14,Muted);T("WINDOWS / v0.4",1010,39,14,Muted);
+        T("未删之城",66,99,19,Gold);T("霓虹余烬",60,133,61,White);T("当记忆成为罪证，你负责让它抵达明天。",65,219,21,White);
+        T("你是携带原始记忆的信使。校正网络开始联手追捕，而三个地下组织递来了各自的技术。",66,260,16,Muted);
+        Emblem(1081,173,71,realTime*8,Violet);R.DrawCircleLinesV(new V(1081,173),97,Line);
+        T("01 / 选择起始武器与技术",65,306,15,Muted);
+        for(int i=0;i<3;i++){
+            float x=65+i*387;Col color=SchoolColor(SchoolIds[i]);bool selected=weapon==i,hover=Hit(x,340,365,218)&&!journal&&!help&&!codex;
+            Card(x,340,365,218,selected?color:hover?Muted:Line);if(selected)Box(x+1,360,3,42,color);
+            T(Lore.SchoolName(SchoolIds[i]),x+23,358,15,color);T(WeaponNames[i],x+23,388,29,White);T(WeaponSub[i],x+23,432,15,color);Wrap(WeaponDesc[i],x+23,473,319,16,Muted);
+            if(hover&&click)weapon=i;
+        }
+        if(Button(difficulty==0?"标准协议  ›":"高压协议  ›",65,586,203,48,false,true))difficulty=1-difficulty;
+        if(Button("J  记忆档案",286,586,202,48,false,true)){journal=true;journalPage=UnlockedChapter();}
+        T("最高生存 "+Clock(difficulty==0?bestTime:hardBest),519,602,16,White);
+        if(Button("携带记忆，出发  ↗",884,582,316,57,true,true))Start();
+        T("WASD 移动 / 空格冲刺 / 自动攻击 / E 优先拆除节点",65,667,14,Muted);T("Enter 开始 · K 图鉴 · H 指南 · F11 全屏",792,667,14,Muted);
+        if(persistWarning!="")T(persistWarning,65,286,12,Gold);
+    }
+    static string UpgradeSchool(Upgrade u){return string.IsNullOrEmpty(u.School)?"":u.School;}
+    static void DrawLevel() {
+        Shade();T("RECONSTRUCTION / "+game.Level.ToString("00"),116,107,15,Cyan);T("选择技术，改写追捕规则",112,138,35,White);
+        T("每系累计 6 点启动核心协议；跨系可产生联动。所有卡片可混搭。",115,193,16,Muted);
+        for(int i=0;i<game.Choices.Count;i++){
+            Upgrade u=game.Choices[i];float x=114+i*358;bool hover=Hit(x,251,336,302)&&!help&&!journal&&!buildView&&!codex;string school=UpgradeSchool(u);Col c=u.Name.Contains("进化")?Gold:school!=""?SchoolColor(school):Cyan;
+            Card(x,251,336,302,hover?c:Line);T("0"+(i+1)+" / "+u.Tag,x+22,272,14,c);Fit(u.Name,x+22,311,290,25,White);
+            Wrap(u.Description,x+22,358,288,16,White.Alpha(.86f));
+            if(!string.IsNullOrEmpty(u.Flavor))Wrap(u.Flavor,x+22,461,288,13,Muted);
+            T("按 "+(i+1)+" 选择  ↗",x+22,520,14,c);if(ConsumeClick(hover)){game.Choose(i);break;}
+        }
+        Fit(game.SchoolProgressText(),115,581,715,16,Muted);if(Button("R 刷新 / 剩余 "+game.Rerolls,879,577,286,46,false,game.Rerolls>0))game.Reroll();
+    }
+    static void DrawShop() {
+        Shade();T("DEAD DROP / 地下接驳站",115,106,15,Cyan);T("他们也在等待这份记忆",111,143,36,White);T("修补匠「弥」：补好装甲，带上能破局的技术。网络不会永远失明。",115,200,17,Muted);
+        T("合金  "+game.Coins,1000,152,22,Gold);
+        for(int i=0;i<game.ShopOffers.Count;i++){
+            Upgrade u=game.ShopOffers[i];float x=114+i*358;string school=UpgradeSchool(u);Col c=school==""?Cyan:SchoolColor(school);Card(x,259,336,285,Line);T(u.Tag,x+22,281,14,c);Fit(u.Name,x+22,320,290,25,White);Wrap(u.Description,x+22,363,290,16,Muted);
+            if(!string.IsNullOrEmpty(u.Flavor))Wrap(u.Flavor,x+22,435,290,12,c.Alpha(.6f));
+            if(Button(u.Price==0?"免费领取":"购买 / "+u.Price+" 合金",x+22,485,292,40,false,game.Coins>=u.Price)){game.Buy(i);break;}
+        }
+        Fit(game.SchoolProgressText(),115,586,730,15,Muted);if(Button("继续传递  ↗",880,574,286,51,true,true))game.LeaveShop();
+    }
+    static void DrawBuild() {
+        Shade();Card(122,37,1036,648,Line);T("BUILD / 技术谱系 · 战场暂停",154,63,15,Cyan);T("你选择了怎样的反抗？",151,95,32,White);
+        string[] weaponKeys={"bolt","arc","blade"};
+        string[] summaries={"点燃目标 · 惩罚破绽 · 传播火种","留下残像 · 干扰指挥 · 多武器共鸣","充能护盾 · 冲刺破阵 · 拦截弹幕"};
+        string detail="悬停技术条目或觉醒名称可阅读效果。武器等级不计入体系点数。";
+        for(int i=0;i<3;i++){
+            float x=154+i*326;string school=SchoolIds[i];Col c=SchoolColor(school);Card(x,150,310,282,Line);T(Lore.SchoolName(school),x+18,165,21,c);Fit(summaries[i],x+18,199,275,14,Muted);
+            int rank=Rank(weaponKeys[i]);T(WeaponNames[i]+" / "+(rank==0?"未装备":rank>=5?"已进化":"Lv."+rank),x+18,232,17,White);
+            int row=0;foreach(string id in Lore.UpgradeIds){Upgrade u=game.WorldUpgradeInfo(id);if(u.School!=school)continue;bool hover=Hit(x+14,261+row*31,280,29);string name=u.Name.Substring(0,u.Name.LastIndexOf(' '));Fit(name,x+18,267+row*31,219,16,hover?White:Muted);T(Rank(id)+" / 3",x+244,267+row*31,14,Rank(id)>0?White:Muted.Alpha(.45f));if(hover)detail=(Rank(id)>0?"当前效果 / ":"1 级预览 / ")+u.Description;row++;}
+            T("投入 "+game.SchoolPoints(school)+" / 6",x+18,373,15,c);Fit((game.HasSchoolCapstone(school)?"已觉醒 / ":"6 点觉醒 / ")+Lore.CapstoneName(school),x+18,400,276,14,c);
+            if(Hit(x+14,368,280,53))detail=Lore.CapstoneDescription(school);
+        }
+        Wrap(game.SynergyText(),156,445,965,14,Gold);
+        string[] ids={"power","haste","vitality","speed","magnet","scholar","crit","guard","dash"};string[] names={"增伤","攻速","装甲","移速","拾取","经验","暴击","减伤","冲刺"};
+        for(int i=0;i<9;i++)T(names[i]+" "+Rank(ids[i]),155+i*107,518,14,Muted);
+        T("伤害 ×"+game.PowerMultiplier.ToString("F2")+"   /   频率 ×"+game.FireRateMultiplier.ToString("F2")+"   /   护盾 "+Math.Ceiling(game.Ward)+" / "+game.MaxWard,155,547,17,Cyan);
+        Wrap(detail,155,578,965,15,Muted);T("B / ESC 返回",155,642,14,Muted);
+        if(ModalButton("返回战场",862,623,260,42,!help&&!journal&&!codex))buildView=false;
+    }
+    static void DrawJournal() {
+        Shade();Card(91,42,1098,634,Line);T("ARCHIVE / 已解封记忆",126,68,15,Violet);T("一座城，四份互相矛盾的证词",122,103,33,White);
+        int unlocked=UnlockedChapter();for(int i=0;i<Lore.StoryCount;i++){
+            float y=174+i*81;bool open=i<=unlocked,selected=i==journalPage;Card(124,y,280,66,selected?Violet:Line);T("0"+i+" / "+(open?"可读取":"尚未解密"),139,y+10,12,open?Violet:Muted.Alpha(.5f));Fit(open?Lore.StoryTitle(i):"击破第 "+i+" 位监察者",139,y+34,250,16,open?White:Muted.Alpha(.5f));if(open&&click&&Hit(124,y,280,66))journalPage=i;
+        }
+        T("记录会跨局保留。",125,526,14,Muted);Wrap("每局前 3 次击破监察者，依次获得证词。读完后继续无尽模式，将未删记忆传给更远的街区。",125,555,270,14,Muted);
+        L(429,174,429,618,1,Line);T(Lore.StoryTitle(journalPage),465,179,26,White);Wrap(Lore.StoryBody(journalPage),465,233,675,18,Muted);
+        if(ModalButton("关闭档案 / J",895,609,255,43,true))journal=false;
+    }
+    static void DrawHelp() {
+        Shade();Card(142,42,996,636,Line);T("FIELD MANUAL / 反校正战术",177,67,15,Cyan);T("观察协作，再拆掉它",173,101,33,White);
+        string[] labels={"WASD / 方向键","SPACE","E / 鼠标点击","1 / 2 / 3 · R","B / J / K / ESC"};string[] desc={"移动；武器自动攻击，无需持续点击。","冲刺突围；回声系可留下诱饵，铸卫系可冲击封锁。","E 优先锁定指挥节点；点怪指定目标，点空地解除。","选择升级 / 重掷；初始 3 次，击破监察者可补充。","构筑 / 剧情 / 怪物图鉴 / 暂停，阅读时战场暂停。"};
+        for(int i=0;i<labels.Length;i++){T(labels[i],179,168+i*38,17,i==2?Gold:White);T(desc[i],416,168+i*38,16,Muted);}
+        L(178,371,1102,371,1,Line);Wrap("紫色虚线：节点正在协调随从。准备 → 压制 → 截击 → 恢复，抓住空当。\n金色护甲：盾卫掩护或棱镜正面装甲；找侧面。金色光束：维护者修复引导。\n橙色虚线是蓄力预告，红色实线是生效危险；圆环中心留有安全区。\n三系各 3 项技术，每项 3 级；同系 6 点觉醒，两系各 2 点产生联动。",179,393,918,17,Muted);
+        T("预警锁定后改变方向，先拆节点或守卫，再穿过恢复期形成的缺口。",179,532,17,Gold);T("有限预判 / 可读意图 / 协作有依赖 / 破局有收益",179,569,14,Cyan);
+        if(ModalButton("明白了 / H",845,610,257,43,!journal&&!codex))help=false;
+    }
+    static readonly string[] CodexKinds={"chaser","runner","shooter","bomber","tank","relay","repairer","prism","boss"};
+    static readonly string[] CodexRoles={"追踪 / 驱赶","截击 / 冲锋","压制 / 交叉火力","封路 / 预判落点","掩护 / 保护后排","指挥 / 调度编队","支援 / 引导修复","装甲 / 侧背弱点","监察 / 多形态攻势"};
+    static readonly string[] CodexBehavior={
+        "持续追踪并挤压空间。它们把你赶进其他单位的火线，数量增加后会压缩回旋余地。",
+        "先移动到侧翼，再根据你最近的轨迹选择截击方向。蓄力开始后，冲锋方向不再跟随你变化。",
+        "拉开射距并分散站位。编队压制阶段从不同方向开火，逼你提前交出冲刺。",
+        "沿你可能继续走的路线布置封锁。反复绕圈会使落点更准确，区域生效后会短暂留在场上。",
+        "走到你与节点、射手之间。只有站在合适的掩护位置，后排才会获得减伤。",
+        "组织四段协作：先准备站位，再压制逼走位，接着让冲锋单位截击，最后进入恢复。",
+        "为附近受伤同伴引导修复。金色连线指向修复对象，下方进度条代表本次引导；它不会复活死者。",
+        "护甲正面朝向你，蓄力后沿朝向释放长线突刺。金色护甲弧显示防御方向；转向较慢，侧背是突破口。",
+        "交替使用圆形封锁、长线切割和环形震荡；生命低于一半后改变攻击组合。蓄力时会显示真实伤害范围。"
+    };
+    static readonly string[] CodexTell={
+        "菱形轮廓；密集追踪群正在压缩通路。",
+        "三角尖端与虚线表示已锁定的冲锋方向。",
+        "准星轮廓；射击虚线出现后，预判落点已锁定。",
+        "八边形外壳；橙色警戒圆先出现，再变为红色危险区。",
+        "厚重方盾；金色连线连向当前被保护的同伴。",
+        "紫色六边形与指挥标签；紫色虚线连接受其调度的随从。",
+        "十字形核心；金色修复光束与引导进度条。",
+        "双菱形机体；金色前向弧表示护甲朝向。",
+        "双层六边形；圆形避开内部、长线横向离开、环形可进入内圈。"
+    };
+    static readonly string[] CodexCounter={
+        "不要一直沿同一方向绕圈；提前换边，把追踪群和远程单位分开。",
+        "引出蓄力后横向改向；冲锋穿过之后，利用恢复时间反击。",
+        "不要同时背对两条火线；借站位把它们引到同一侧，或冲刺离开夹角。",
+        "看到封锁预告再改向；留出回头路线，别冲进刚生效的红区。",
+        "绕过盾卫侧面、拉开它和后排的距离；也可先锁定盾卫将掩护拆除。",
+        "E 优先锁节点。击破或干扰节点会打断整组进攻；恢复阶段是靠近它的机会。",
+        "点击维护者优先攻击；单次直击伤害达到 5 可打断引导，让它暂时无法修复。",
+        "诱导转身后冲刺绕侧；蓄力时侧背直击达到 8 可打断。背击伤害更高，干扰与恢复时护甲关闭。",
+        "等预警锁定后换方向。找安全区、保留冲刺；监察者恢复时会受到额外伤害，抓住机会输出。"
+    };
+    static void CodexInput(){
+        if(R.IsKeyPressed(262)||R.IsKeyPressed(264))codexPage=(codexPage+1)%CodexKinds.Length;
+        if(R.IsKeyPressed(263)||R.IsKeyPressed(265))codexPage=(codexPage+CodexKinds.Length-1)%CodexKinds.Length;
+    }
+    static void DrawCodex(){
+        Shade();Card(63,35,1154,650,Line);T("THREAT ARCHIVE / 战场已暂停",95,60,15,Cyan);T("看懂意图，再选反制",91,92,34,White);
+        T("点击左侧单位 · 方向键切换",846,106,15,Muted);
+        for(int i=0;i<CodexKinds.Length;i++){
+            float y=155+i*49;bool selected=codexPage==i;Col c=EnemyRoleColor(CodexKinds[i]);Card(94,y,266,43,selected?c:Line);if(selected)Box(96,y+9,3,25,c);
+            T((i+1).ToString("00"),111,y+12,15,c);T(Game.EnemyName(CodexKinds[i]),145,y+10,18,selected?White:Muted);
+            if(ConsumeClick(Hit(94,y,266,43)))codexPage=i;
+        }
+        L(387,157,387,602,1,Line);
+        string kind=CodexKinds[codexPage];Col color=EnemyRoleColor(kind);
+        T(Game.EnemyName(kind),419,163,29,White);T(CodexRoles[codexPage],420,204,17,color);
+        Enemy preview=new Enemy{Kind=kind,X=1105,Y=204,R=29,Hp=100,MaxHp=100,FacingX=-1,FacingY=0,Elite=kind=="prism"};DrawEnemyBody(preview,color);
+        T("它在做什么",420,257,16,color);Wrap(CodexBehavior[codexPage],420,287,713,18,White);
+        T("如何辨认",420,382,16,color);Wrap(CodexTell[codexPage],420,412,713,17,Muted);
+        T("破解方式",420,494,16,Cyan);Wrap(CodexCounter[codexPage],420,524,713,18,White);
+        T("橙色虚线：正在蓄力  /  红色实线：危险生效  /  青色与白色：你的武器",95,635,14,Muted);
+        if(ModalButton("返回 / K",934,618,247,43,true))codex=false;
+    }
+    static Col EnemyRoleColor(string kind){return kind=="relay"?Violet:kind=="shooter"?new Col(243,124,189,255):kind=="boss"||kind=="tank"||kind=="prism"||kind=="repairer"?Gold:kind=="bomber"?new Col(255,153,88,255):Pink;}
+    static void DrawEnemyBody(Enemy e,Col c){
+        int sides=e.Kind=="runner"?3:e.Kind=="bomber"?8:e.Kind=="relay"||e.Kind=="boss"?6:4;
+        float facing=(float)(Math.Atan2(e.FacingY,e.FacingX)*180/Math.PI);if(e.FacingX==0&&e.FacingY==0)facing=(float)(Math.Atan2(game.Y-e.Y,game.X-e.X)*180/Math.PI);
+        if(e.Kind=="runner"&&e.AttackPhase==1)facing=(float)(Math.Atan2(e.TargetY-e.Y,e.TargetX-e.X)*180/Math.PI);
+        if(e.Kind=="runner"&&e.AttackPhase==2)facing=(float)(Math.Atan2(e.VY,e.VX)*180/Math.PI);
+        float rotation=e.Kind=="runner"?facing:e.Kind=="tank"||e.Kind=="repairer"?45:0;
+        R.DrawPoly(new V(e.X,e.Y),sides,e.R+3,rotation,c.Alpha(.075f));R.DrawPoly(new V(e.X,e.Y),sides,e.R,rotation,c.Alpha(.18f));R.DrawPolyLinesEx(new V(e.X,e.Y),sides,e.R,rotation,e.Kind=="boss"||e.Elite?3:2,c);
+        if(e.Kind=="relay"){R.DrawPolyLinesEx(new V(e.X,e.Y),6,e.R*.54f,0,2,c);R.DrawCircleV(new V(e.X,e.Y),3,White);}
+        else if(e.Kind=="boss"){R.DrawPolyLinesEx(new V(e.X,e.Y),6,e.R*.57f,30,2,c);L(e.X-6,e.Y,e.X+6,e.Y,2,c);L(e.X,e.Y-6,e.X,e.Y+6,2,c);}
+        else if(e.Kind=="repairer"){L(e.X-7,e.Y,e.X+7,e.Y,3,c);L(e.X,e.Y-7,e.X,e.Y+7,3,c);}
+        else if(e.Kind=="prism"){R.DrawPolyLinesEx(new V(e.X,e.Y),4,e.R*.56f,0,2,c);if(e.JamTime<=0&&e.Stun<=0&&e.Recovery<=0)R.DrawRing(new V(e.X,e.Y),e.R+4,e.R+7,facing-60,facing+60,20,Gold);}
+        else if(e.Kind=="tank"){float a=facing*(float)Math.PI/180,dx=(float)Math.Cos(a),dy=(float)Math.Sin(a);L(e.X+dx*e.R-dy*e.R*.7f,e.Y+dy*e.R+dx*e.R*.7f,e.X+dx*e.R+dy*e.R*.7f,e.Y+dy*e.R-dx*e.R*.7f,4,Gold);R.DrawPolyLinesEx(new V(e.X,e.Y),4,e.R*.45f,45,2,c);}
+        else if(e.Kind=="shooter"){R.DrawCircleLinesV(new V(e.X,e.Y),e.R*.45f,c);L(e.X-e.R*.85f,e.Y,e.X+e.R*.85f,e.Y,1.6f,c);L(e.X,e.Y-e.R*.85f,e.X,e.Y+e.R*.85f,1.6f,c);}
+        else if(e.Kind=="bomber"){R.DrawCircleLinesV(new V(e.X,e.Y),e.R*.5f,c);R.DrawCircleV(new V(e.X,e.Y),3,c);}
+        else if(e.Kind=="runner"){float a=facing*(float)Math.PI/180;L(e.X-(float)Math.Cos(a)*4,e.Y-(float)Math.Sin(a)*4,e.X+(float)Math.Cos(a)*8,e.Y+(float)Math.Sin(a)*8,2,c);}
+        else R.DrawCircleV(new V(e.X,e.Y),3,c);
+    }
+    static void EnemyTag(string label,float x,float y,Col c){float w=TW(label,13)+12;Box(x-w/2,y-2,w,20,BG.Alpha(.91f));TC(label,x,y,13,c);}
+    static void DashedLine(float x,float y,float tx,float ty,float width,Col c){float dx=tx-x,dy=ty-y,len=(float)Math.Sqrt(dx*dx+dy*dy);if(len<1)return;for(float at=0;at<len;at+=15){float end=Math.Min(at+8,len);L(x+dx*at/len,y+dy*at/len,x+dx*end/len,y+dy*end/len,width,c);}}
+    static void DashedCircle(float x,float y,float r,Col c){for(int i=0;i<24;i++){float a=i*(float)Math.PI/12,b=a+.12f;L(x+(float)Math.Cos(a)*r,y+(float)Math.Sin(a)*r,x+(float)Math.Cos(b)*r,y+(float)Math.Sin(b)*r,2,c);}}
+    static void HazardCap(float x,float y,float radius,float from,bool warning,Col color){for(int i=0;i<24;i++){if(warning&&i%2!=0)continue;float a=(from+i*7.5f)*(float)Math.PI/180,b=(from+(i+1)*7.5f)*(float)Math.PI/180;L(x+(float)Math.Cos(a)*radius,y+(float)Math.Sin(a)*radius,x+(float)Math.Cos(b)*radius,y+(float)Math.Sin(b)*radius,2,color);}}
+    static void DrawHazard(Hazard h){
+        bool warning=h.Warning>0;Col c=warning?Gold:Pink;float alpha=warning?.08f:.21f;
+        if(h.Shape=="line"){
+            float dx=h.X2-h.X,dy=h.Y2-h.Y,len=Math.Max(1,(float)Math.Sqrt(dx*dx+dy*dy)),nx=-dy/len*h.R,ny=dx/len*h.R;
+            L(h.X,h.Y,h.X2,h.Y2,h.R*2,c.Alpha(alpha));R.DrawCircleV(new V(h.X,h.Y),h.R,c.Alpha(alpha));R.DrawCircleV(new V(h.X2,h.Y2),h.R,c.Alpha(alpha));
+            if(warning){DashedLine(h.X+nx,h.Y+ny,h.X2+nx,h.Y2+ny,2,c);DashedLine(h.X-nx,h.Y-ny,h.X2-nx,h.Y2-ny,2,c);}else{L(h.X+nx,h.Y+ny,h.X2+nx,h.Y2+ny,2,c);L(h.X-nx,h.Y-ny,h.X2-nx,h.Y2-ny,2,c);}
+            float angle=(float)(Math.Atan2(dy,dx)*180/Math.PI);HazardCap(h.X,h.Y,h.R,angle+90,warning,c);HazardCap(h.X2,h.Y2,h.R,angle-90,warning,c);
+            EnemyTag(warning?"切割蓄力":"切割生效",(h.X+h.X2)/2,(h.Y+h.Y2)/2-8,c);
+        }else if(h.Shape=="ring"){
+            R.DrawRing(new V(h.X,h.Y),h.InnerR,h.R,0,360,64,c.Alpha(alpha));
+            if(warning){DashedCircle(h.X,h.Y,h.R,c);DashedCircle(h.X,h.Y,h.InnerR,c);}else{R.DrawCircleLinesV(new V(h.X,h.Y),h.R,c);R.DrawCircleLinesV(new V(h.X,h.Y),h.InnerR,c);}
+            EnemyTag("本环安全区",h.X,h.Y-8,White);EnemyTag(warning?"环震蓄力":"环震生效",h.X,h.Y-h.R+12,c);
+        }else{
+            R.DrawCircleV(new V(h.X,h.Y),h.R,c.Alpha(alpha));if(warning)DashedCircle(h.X,h.Y,h.R,c);else R.DrawCircleLinesV(new V(h.X,h.Y),h.R,c);
+            EnemyTag(warning?"封锁蓄力":"封锁生效",h.X,h.Y-8,c);
+        }
+    }
+    static string PhaseCounter(string phase){if(phase=="准备")return "敌人正分散站位：找节点，预留侧向退路";if(phase=="压制")return "后排交叉开火：改向避弹，留一次冲刺";if(phase=="截击")return "侧翼正在收口：等冲锋锁定后横向穿出";if(phase=="恢复")return "协作暂歇：穿过缺口，集火节点或维护者";return "引出蓄力，再改向；点击敌人查看破解方式";}
+    static void DrawSquadReadout(){
+        bool linked=false;foreach(Enemy e in game.Enemies)if(e.Kind=="relay"&&e.Hp>0){linked=true;break;}
+        float x=35,y=stats?196:112;Box(x,y,530,65,BG.Alpha(.93f));
+        if(linked){string[] phases={"准备","压制","截击","恢复"};T("编队",x+12,y+10,14,Violet);for(int i=0;i<phases.Length;i++){bool active=game.SquadPhase==phases[i];Col c=active?(i==3?Cyan:Gold):Muted.Alpha(.5f);T(phases[i],x+75+i*92,y+9,16,c);if(i<3)T("›",x+137+i*92,y+10,16,Muted.Alpha(.45f));}T(game.SquadPhaseLeft.ToString("F1")+"s",x+470,y+11,14,Gold);Fit(PhaseCounter(game.SquadPhase),x+12,y+38,510,15,White);}
+        else{T("战术提示",x+12,y+10,14,Cyan);Fit("引出预警 → 改变方向 → 抓恢复期反击",x+95,y+9,417,16,White);T("敌方蓄力为橙色虚线，红色区域已经生效",x+12,y+38,15,Muted);}
+    }
+    static void DrawTargetReadout(){
+        Enemy target=null;foreach(Enemy e in game.Enemies)if(e.Id==game.FocusTargetId&&e.Hp>0){target=e;break;}
+        if(target==null)return;float x=898,y=111,w=347;Col c=EnemyRoleColor(target.Kind);Card(x,y,w,150,c.Alpha(.65f));
+        T((target.Elite?"精英 / ":"锁定 / ")+Game.EnemyName(target.Kind),x+14,y+11,20,c);
+        float ratio=target.MaxHp<=0?0:Math.Max(0,Math.Min(1,target.Hp/target.MaxHp));Box(x+15,y+42,w-30,4,Line);Box(x+15,y+42,(w-30)*ratio,4,c);
+        string intent=target.Stun>0?"失联僵直：现在可以进攻":target.JamTime>0?"受到干扰：协作已中断":target.Channel>0?"正在引导修复：攻击可打断":!string.IsNullOrEmpty(target.Intent)?target.Intent:target.Order;
+        Fit("行动  "+intent,x+15,y+58,w-30,16,White);
+        Wrap(Game.EnemyCounter(target.Kind),x+15,y+86,w-30,15,Muted);
+        T("点击空地解除锁定 · K 查看机制",x+15,y+128,13,c);
+    }
+    static void DrawAttackWarning(Enemy e,Col c) {
+        if(e.AttackPhase!=1||(e.Kind!="runner"&&e.Kind!="shooter"))return;
+        float tx=e.TargetX,ty=e.TargetY;
+        if(e.Kind=="runner"){
+            float dx=tx-e.X,dy=ty-e.Y,len=Math.Max(1,(float)Math.Sqrt(dx*dx+dy*dy)),travel=Math.Max(.35f,Math.Min(.86f,len/520))*520;
+            for(float at=0;at<travel;at+=15){float end=Math.Min(at+8,travel);L(ArenaClampX(e.X+dx/len*at,e.R),ArenaClampY(e.Y+dy/len*at,e.R),ArenaClampX(e.X+dx/len*end,e.R),ArenaClampY(e.Y+dy/len*end,e.R),3,Gold.Alpha(.85f));}
+            tx=ArenaClampX(e.X+dx/len*travel,e.R);ty=ArenaClampY(e.Y+dy/len*travel,e.R);
+        }else DashedLine(e.X,e.Y,tx,ty,2,Gold.Alpha(.85f));
+        R.DrawCircleLinesV(new V(tx,ty),8,Gold.Alpha(.85f));
+    }
+    static float ArenaClampX(float x,float radius){return Math.Max(24+radius,Math.Min(1256-radius,x));}
+    static float ArenaClampY(float y,float radius){return Math.Max(104+radius,Math.Min(640-radius,y));}
+}
+}
